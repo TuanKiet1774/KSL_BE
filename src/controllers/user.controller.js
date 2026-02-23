@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const paginate = require("../utils/pagination");
 
 exports.getUsers = async (req, res) => {
   try {
@@ -11,10 +12,10 @@ exports.getUsers = async (req, res) => {
       email,
       role,
       isActive,
-      page = 1,
-      limit = 10,
-      sortBy = "createdAt",
-      sortOrder = "desc",
+      page,
+      limit,
+      sortBy,
+      sortOrder,
       search,
     } = req.query;
 
@@ -52,28 +53,19 @@ exports.getUsers = async (req, res) => {
         query.birthday = { $gte: startOfDay, $lte: endOfDay };
       }
     }
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const limitNum = parseInt(limit);
-    const sort = {};
-    sort[sortBy] = sortOrder === "desc" ? -1 : 1;
-    const users = await User.find(query)
-      .sort(sort)
-      .skip(skip)
-      .limit(limitNum)
-      .select("-password");
 
-    const total = await User.countDocuments(query);
+    const result = await paginate(User, query, {
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+      select: "-password",
+    });
 
     res.status(200).json({
       success: true,
-      count: users.length,
-      total,
-      pagination: {
-        totalPage: Math.ceil(total / limitNum),
-        currentPage: parseInt(page),
-        limit: limitNum,
-      },
-      data: users,
+      count: result.data.length,
+      ...result,
     });
   } catch (error) {
     res.status(500).json({
