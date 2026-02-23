@@ -7,6 +7,7 @@ const questionRoutes = require("./routes/question.routes");
 const wordRoutes = require("./routes/word.routes");
 const progressRoutes = require("./routes/progress.routes");
 const examRoutes = require("./routes/exam.routes");
+const feedbackRoutes = require("./routes/feedback.routes");
 
 app.use(express.json());
 app.use("/api/users", userRoutes);
@@ -16,6 +17,7 @@ app.use("/api/questions", questionRoutes);
 app.use("/api/words", wordRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/exams", examRoutes);
+app.use("/api/feedbacks", feedbackRoutes);
 
 app.get("/", (req, res) => {
     res.send("API is running...");
