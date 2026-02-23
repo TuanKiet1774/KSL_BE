@@ -5,7 +5,6 @@ const progressSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true,
-        index: true,
     },
     // Lưu các bài học đã hoàn thành
     completedLessons: [{

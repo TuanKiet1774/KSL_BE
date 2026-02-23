@@ -1,18 +1,27 @@
-require("dotenv").config();
-const app = require("./src/app");
-const mongoose = require("mongoose");
+require('dotenv').config();
+const app = require('./src/app');
+const connectDB = require('./src/config/db');
 
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/ksl_db";
+const PORT = process.env.PORT || 3000;
 
-mongoose
-    .connect(MONGO_URI)
+// Connect to Database and Start Server
+connectDB()
     .then(() => {
-        console.log("Connected to MongoDB");
-        app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
+        const server = app.listen(PORT, () => {
+            console.log(`🚀 Server is running on port ${PORT}`);
+        });
+
+        server.on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                console.error(`❌ Error: Port ${PORT} is already in use.`);
+            } else {
+                console.error(`❌ Server Error: ${error.message}`);
+            }
+            process.exit(1);
         });
     })
-    .catch((err) => {
-        console.error("MongoDB connection error:", err);
+    .catch((error) => {
+        console.error(`❌ Startup Error: ${error.message}`);
+        process.exit(1);
     });
+
