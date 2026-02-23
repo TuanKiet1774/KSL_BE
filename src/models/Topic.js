@@ -31,6 +31,13 @@ const topicSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-topicSchema.index({ name: "text", slug: "text", description: "text" });
+topicSchema.index(
+    { name: "text", slug: "text", description: "text" },
+    {
+        weights: { name: 10, slug: 5, description: 1 },
+        name: "TopicTextIndex"
+    }
+);
+topicSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("Topic", topicSchema);

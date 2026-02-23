@@ -37,6 +37,13 @@ const lessonSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-lessonSchema.index({ name: "text", slug: "text", description: "text" });
+lessonSchema.index({ topicId: 1, createdAt: -1 });
+lessonSchema.index(
+    { name: "text", slug: "text", description: "text" },
+    {
+        weights: { name: 10, slug: 5, description: 1 },
+        name: "LessonTextIndex"
+    }
+);
 
 module.exports = mongoose.model("Lesson", lessonSchema);
