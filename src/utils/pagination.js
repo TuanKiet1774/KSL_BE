@@ -1,10 +1,3 @@
-/**
- * Helper to paginate and search mongoose models
- * @param {Object} model - Mongoose model
- * @param {Object} query - Mongoose query object
- * @param {Object} options - Pagination options { page, limit, sortBy, sortOrder }
- * @returns {Object} { data, total, pagination }
- */
 const paginate = async (model, query = {}, options = {}) => {
     const {
         page = 1,
