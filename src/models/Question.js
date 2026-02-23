@@ -32,13 +32,13 @@ const questionSchema = new mongoose.Schema({
         default: "multiple-choice",
         index: true,
     },
-    difficulty: {
+    level: {
         type: String,
-        enum: ["easy", "medium", "hard"],
-        default: "easy",
+        enum: ["Beginner", "Intermediate", "Advanced"],
+        default: "Beginner",
         index: true,
     },
-    points: {
+    points: { 
         type: Number,
         default: 10,
     },

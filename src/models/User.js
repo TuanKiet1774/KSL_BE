@@ -69,6 +69,23 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
+    level: { //Level để xác nhận cấp độ của người dùng
+      type: String,
+      enum: ["Beginner", "Intermediate", "Advanced"],
+      default: "Beginner",
+      index: true,
+    },
+
+    points: { //Điểm hiện tại của người dùng, dùng để mở khoá các question
+      type: Number,
+      default: 0,
+    },
+
+    exp: { //Kinh nghiệm hiện tại của người dùng, dùng để mở khoá các 
+      type: Number,
+      default: 0,
+    },
+
     isActive: {
       type: Boolean,
       default: true,

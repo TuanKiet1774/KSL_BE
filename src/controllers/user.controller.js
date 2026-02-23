@@ -11,6 +11,7 @@ exports.getUsers = async (req, res) => {
       address,
       email,
       role,
+      level,
       isActive,
       page,
       limit,
@@ -41,6 +42,9 @@ exports.getUsers = async (req, res) => {
     }
     if (role) {
       query.role = role;
+    }
+    if (level) {
+      query.level = level;
     }
     if (isActive !== undefined) {
       query.isActive = isActive === "true";

@@ -17,6 +17,12 @@ const lessonSchema = new mongoose.Schema({
         maxlength: 100,
         index: true,
     },
+    level: {
+        type: String,
+        enum: ["Beginner", "Intermediate", "Advanced"],
+        default: "Beginner",
+        index: true,
+    },
     description: {
         type: String,
         required: true,

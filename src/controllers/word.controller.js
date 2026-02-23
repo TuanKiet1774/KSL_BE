@@ -1,14 +1,15 @@
-const Lesson = require("../models/Lesson");
+const Word = require("../models/Word");
 const paginate = require("../utils/pagination");
 
-exports.getLessons = async (req, res) => {
+exports.getWords = async (req, res) => {
     try {
         const {
             name,
             slug,
             description,
-            topicId,
+            lessonId,
             level,
+            isActive,
             page,
             limit,
             sortBy,
@@ -21,8 +22,8 @@ exports.getLessons = async (req, res) => {
         if (search) {
             query.$text = { $search: search };
         }
-        if (topicId) {
-            query.topicId = topicId;
+        if (lessonId) {
+            query.lessonId = lessonId;
         }
         if (level) {
             query.level = level;
@@ -36,13 +37,16 @@ exports.getLessons = async (req, res) => {
         if (description) {
             query.description = { $regex: description, $options: "i" };
         }
+        if (isActive !== undefined) {
+            query.isActive = isActive === "true";
+        }
 
-        const result = await paginate(Lesson, query, {
+        const result = await paginate(Word, query, {
             page,
             limit,
             sortBy,
             sortOrder,
-            populate: "topicId",
+            populate: "lessonId",
         });
 
         res.status(200).json({
@@ -59,12 +63,12 @@ exports.getLessons = async (req, res) => {
     }
 };
 
-exports.createLesson = async (req, res) => {
+exports.createWord = async (req, res) => {
     try {
-        const lesson = await Lesson.create(req.body);
+        const word = await Word.create(req.body);
         res.status(201).json({
             success: true,
-            data: lesson,
+            data: word,
         });
     } catch (error) {
         res.status(400).json({
@@ -74,42 +78,42 @@ exports.createLesson = async (req, res) => {
     }
 };
 
-exports.getLessonById = async (req, res) => {
+exports.getWordById = async (req, res) => {
     try {
-        const lesson = await Lesson.findById(req.params.id).populate("topicId");
-        if (!lesson) {
-            return res.status(404).json({ success: false, message: "Lesson not found" });
+        const word = await Word.findById(req.params.id).populate("lessonId");
+        if (!word) {
+            return res.status(404).json({ success: false, message: "Word not found" });
         }
-        res.status(200).json({ success: true, data: lesson });
+        res.status(200).json({ success: true, data: word });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
 };
 
-exports.updateLesson = async (req, res) => {
+exports.updateWord = async (req, res) => {
     try {
-        const lesson = await Lesson.findByIdAndUpdate(req.params.id, req.body, {
+        const word = await Word.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true,
         });
 
-        if (!lesson) {
-            return res.status(404).json({ success: false, message: "Lesson not found" });
+        if (!word) {
+            return res.status(404).json({ success: false, message: "Word not found" });
         }
 
-        res.status(200).json({ success: true, data: lesson });
+        res.status(200).json({ success: true, data: word });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
 };
 
-exports.deleteLesson = async (req, res) => {
+exports.deleteWord = async (req, res) => {
     try {
-        const lesson = await Lesson.findByIdAndDelete(req.params.id);
-        if (!lesson) {
-            return res.status(404).json({ success: false, message: "Lesson not found" });
+        const word = await Word.findByIdAndDelete(req.params.id);
+        if (!word) {
+            return res.status(404).json({ success: false, message: "Word not found" });
         }
-        res.status(200).json({ success: true, message: "Lesson deleted successfully" });
+        res.status(200).json({ success: true, message: "Word deleted successfully" });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }

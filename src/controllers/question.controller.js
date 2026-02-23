@@ -8,7 +8,7 @@ exports.getQuestions = async (req, res) => {
             slug,
             lessonId,
             type,
-            difficulty,
+            level,
             page,
             limit,
             sortBy,
@@ -27,8 +27,8 @@ exports.getQuestions = async (req, res) => {
         if (type) {
             query.type = type;
         }
-        if (difficulty) {
-            query.difficulty = difficulty;
+        if (level) {
+            query.level = level;
         }
         if (question) {
             query.question = { $regex: question, $options: "i" };
