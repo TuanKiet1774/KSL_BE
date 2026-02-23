@@ -33,7 +33,7 @@ const progressSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-// Mỗi user chỉ có 1 bản ghi Progress duy nhất để tối ưu truy vấn
+
 progressSchema.index({ userId: 1 }, { unique: true });
 
 module.exports = mongoose.model("Progress", progressSchema);
