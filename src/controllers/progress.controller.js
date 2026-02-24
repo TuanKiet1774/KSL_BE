@@ -12,7 +12,6 @@ exports.getProgress = async (req, res) => {
             .populate("completedExams.resultId");
 
         if (!progress) {
-            // Nếu chưa có thì tạo mới
             progress = await Progress.create({ userId: req.params.userId });
         }
 
@@ -25,7 +24,6 @@ exports.getProgress = async (req, res) => {
     }
 };
 
-// Cập nhật khi hoàn thành chủ đề manually (Dùng cho Admin hoặc logic đặc biệt)
 exports.completeTopic = async (req, res) => {
     try {
         const { userId, topicId } = req.body;
@@ -40,12 +38,9 @@ exports.completeTopic = async (req, res) => {
     }
 };
 
-// Cập nhật khi học từ mới và cộng EXP
 exports.learnWord = async (req, res) => {
     try {
         const { userId, wordId } = req.body;
-
-        // 1. Kiểm tra xem đã học từ này chưa
         const existingProgress = await Progress.findOne({
             userId,
             "learnedWords.wordId": wordId
@@ -59,7 +54,6 @@ exports.learnWord = async (req, res) => {
             });
         }
 
-        // 2. Lấy giá trị exp của từ vựng
         const word = await Word.findById(wordId);
         if (!word) {
             return res.status(404).json({ success: false, message: "Word not found" });
@@ -67,7 +61,6 @@ exports.learnWord = async (req, res) => {
 
         const expGain = word.exp || 5;
 
-        // 3. Cập nhật User và Progress
         await User.findByIdAndUpdate(userId, {
             $inc: { exp: expGain }
         });

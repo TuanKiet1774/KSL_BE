@@ -42,8 +42,6 @@ exports.getTopics = async (req, res) => {
         });
 
         const userExp = req.user ? req.user.exp : 0;
-
-        // Lấy thông tin tiến độ của người dùng để kiểm tra các topic đã hoàn thành
         let completedTopicIds = [];
         if (req.user) {
             const progress = await Progress.findOne({ userId: req.user._id });
@@ -54,16 +52,7 @@ exports.getTopics = async (req, res) => {
 
         const topicsWithLockStatus = result.data.map((topic, index) => {
             const topicObj = topic.toObject();
-
-            // Một topic bị khóa nếu:
-            // 1. EXP người dùng thấp hơn EXP yêu cầu
             const expLocked = userExp < (topic.expRequired || 0);
-
-            // 2. (Tùy chọn) Nếu muốn bắt buộc hoàn thành topic trước đó:
-            // Tìm topic có số thứ tự ngay trước topic này (giả định topics được trả về đã sort theo order)
-            // Trong thực tế, nên check dựa trên toàn bộ DB, nhưng ở đây ta check đơn giản:
-            // Nếu không phải topic đầu tiên (order > 0) và topic trước đó chưa hoàn thành.
-            // Tuy nhiên, yêu cầu chính là "theo EXP" nên ta ưu tiên EXP.
 
             return {
                 ...topicObj,
