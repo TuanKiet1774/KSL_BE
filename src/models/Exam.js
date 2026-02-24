@@ -1,48 +1,41 @@
 const mongoose = require("mongoose");
 
 const examSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-        index: true,
-    },
-    lessonId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Lesson",
-        index: true,
-    },
     title: {
         type: String,
         required: true,
         trim: true,
     },
-    results: [{
-        questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Question", required: true },
-        userAnswer: { type: String, default: "" }, 
-        chosenOptionId: { type: mongoose.Schema.Types.ObjectId }, 
-        isCorrect: { type: Boolean, required: true },
-        points: { type: Number, default: 0 }
+    description: {
+        type: String,
+        trim: true,
+        default: "",
+    },
+    topicId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Topic",
+        index: true,
+    },
+    questions: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Question",
+        required: true
     }],
-    totalScore: {
-        type: Number,
-        default: 0
+    duration: {
+        type: Number, // In seconds
+        default: 1800, // 30 minutes
     },
     maxScore: {
         type: Number,
         default: 0
     },
-    timeSpent: {
-        type: Number, // Tính bằng giây
-        default: 10
-    },
-    status: {
-        type: String,
-        enum: ["in-progress", "completed"],
-        default: "completed"
+    isActive: {
+        type: Boolean,
+        default: true,
+        index: true,
     }
 }, { timestamps: true });
 
-examSchema.index({ userId: 1, createdAt: -1 });
+examSchema.index({ topicId: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Exam", examSchema);

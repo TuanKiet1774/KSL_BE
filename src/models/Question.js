@@ -38,10 +38,6 @@ const questionSchema = new mongoose.Schema({
         default: "Beginner",
         index: true,
     },
-    points: { 
-        type: Number,
-        default: 10,
-    },
     description: {
         type: String,
         trim: true,
@@ -87,9 +83,9 @@ const questionSchema = new mongoose.Schema({
             message: "A question must have at least 2 options and exactly one correct answer."
         }
     },
-    lessonId: {
+    topicId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Lesson",
+        ref: "Topic",
         required: true,
         index: true,
     },
@@ -100,7 +96,7 @@ const questionSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-questionSchema.index({ lessonId: 1, isActive: 1, difficulty: 1, type: 1, createdAt: -1 });
+questionSchema.index({ topicId: 1, isActive: 1, difficulty: 1, type: 1, createdAt: -1 });
 questionSchema.index(
     { question: "text", slug: "text", description: "text" },
     {

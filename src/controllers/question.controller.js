@@ -6,7 +6,7 @@ exports.getQuestions = async (req, res) => {
         const {
             question,
             slug,
-            lessonId,
+            topicId,
             type,
             level,
             page,
@@ -21,8 +21,8 @@ exports.getQuestions = async (req, res) => {
         if (search) {
             query.$text = { $search: search };
         }
-        if (lessonId) {
-            query.lessonId = lessonId;
+        if (topicId) {
+            query.topicId = topicId;
         }
         if (type) {
             query.type = type;
@@ -42,7 +42,7 @@ exports.getQuestions = async (req, res) => {
             limit,
             sortBy,
             sortOrder,
-            populate: "lessonId",
+            populate: "topicId",
         });
 
         res.status(200).json({
@@ -76,7 +76,7 @@ exports.createQuestion = async (req, res) => {
 
 exports.getQuestionById = async (req, res) => {
     try {
-        const question = await Question.findById(req.params.id).populate("lessonId");
+        const question = await Question.findById(req.params.id).populate("topicId");
         if (!question) {
             return res.status(404).json({ success: false, message: "Question not found" });
         }

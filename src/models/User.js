@@ -76,12 +76,7 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
-    points: { //Điểm hiện tại của người dùng, dùng để mở khoá các question
-      type: Number,
-      default: 0,
-    },
-
-    exp: { //Kinh nghiệm hiện tại của người dùng, dùng để mở khoá các 
+    exp: { //Kinh nghiệm hiện tại của người dùng, dùng để mở khoá các word
       type: Number,
       default: 0,
     },

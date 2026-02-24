@@ -18,7 +18,7 @@ const wordSchema = new mongoose.Schema({
         maxlength: 100,
         index: true,
     },
-    
+
     description: {
         type: String,
         required: true,
@@ -27,7 +27,7 @@ const wordSchema = new mongoose.Schema({
         maxlength: 1000,
         index: true,
     },
-    
+
     level: {
         type: String,
         enum: ["Beginner", "Intermediate", "Advanced"],
@@ -47,14 +47,14 @@ const wordSchema = new mongoose.Schema({
         },
     },
 
-    exp: { //Kinh nghiệm cần phải có để mở khoá từ vựng
+    exp: {
         type: Number,
-        default: 0,
+        default: 5, // Mặc định mỗi từ mới cho 5 exp
     },
-    
-    lessonId: {
+
+    topicId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Lesson",
+        ref: "Topic",
         required: true,
         index: true,
     },
@@ -66,7 +66,7 @@ const wordSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-wordSchema.index({ lessonId: 1, createdAt: -1 });
+wordSchema.index({ topicId: 1, createdAt: -1 });
 wordSchema.index(
     { name: "text", slug: "text", description: "text" },
     {

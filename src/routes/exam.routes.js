@@ -3,11 +3,11 @@ const router = express.Router();
 const examController = require("../controllers/exam.controller");
 
 router.route("/")
-    .get(examController.getExams)
-    .post(examController.submitExam);
+    .get(examController.getExams)     // Lấy danh sách đề thi
+    .post(examController.createExam); // Tạo đề thi mới (Admin)
 
-router.post("/submit", examController.submitExam);
-router.get("/user/:userId", examController.getUserExams);
+router.post("/submit", examController.submitExamResult); // Nộp bài làm (User)
+router.get("/user/:userId", examController.getUserResults); // Lấy lịch sử thi của user
 
 router.route("/:id")
     .get(examController.getExamById)

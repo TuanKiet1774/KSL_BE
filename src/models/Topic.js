@@ -17,6 +17,12 @@ const topicSchema = new mongoose.Schema({
         maxlength: 100,
         index: true,
     },
+    level: {
+        type: String,
+        enum: ["Beginner", "Intermediate", "Advanced"],
+        default: "Beginner",
+        index: true,
+    },
     description: {
         type: String,
         required: true,
@@ -29,6 +35,16 @@ const topicSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
+    expRequired: {
+        type: Number,
+        default: 0,
+        index: true,
+    },
+    order: {
+        type: Number,
+        default: 0,
+        index: true,
+    }
 }, { timestamps: true });
 
 topicSchema.index(

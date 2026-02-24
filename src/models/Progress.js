@@ -6,9 +6,9 @@ const progressSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
-    // Lưu các bài học đã hoàn thành
-    completedLessons: [{
-        lessonId: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" },
+    // Lưu các chủ đề đã hoàn thành
+    completedTopics: [{
+        topicId: { type: mongoose.Schema.Types.ObjectId, ref: "Topic" },
         completedAt: { type: Date, default: Date.now }
     }],
     // Lưu các từ vựng đã học
@@ -16,17 +16,15 @@ const progressSchema = new mongoose.Schema({
         wordId: { type: mongoose.Schema.Types.ObjectId, ref: "Word" },
         learnedAt: { type: Date, default: Date.now }
     }],
-    // Lưu lịch sử làm câu hỏi
-    questionHistory: [{
-        questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
-        isCorrect: { type: Boolean, required: true },
-        chosenOptionId: { type: mongoose.Schema.Types.ObjectId },
-        pointsEarned: { type: Number, default: 0 },
-        answeredAt: { type: Date, default: Date.now }
+    // Lưu lịch sử các bài kiểm tra đã làm
+    completedExams: [{
+        examId: { type: mongoose.Schema.Types.ObjectId, ref: "Exam" },
+        resultId: { type: mongoose.Schema.Types.ObjectId, ref: "ExamResult" },
+        score: { type: Number, default: 0 },
+        completedAt: { type: Date, default: Date.now }
     }],
     // Tổng kết nhanh để hiển thị streak hoặc thống kê
     stats: {
-        totalPoints: { type: Number, default: 0 },
         totalExp: { type: Number, default: 0 },
         streakDays: { type: Number, default: 0 },
         lastActivity: { type: Date, default: Date.now }

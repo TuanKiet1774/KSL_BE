@@ -7,7 +7,7 @@ exports.getWords = async (req, res) => {
             name,
             slug,
             description,
-            lessonId,
+            topicId,
             level,
             isActive,
             page,
@@ -22,8 +22,8 @@ exports.getWords = async (req, res) => {
         if (search) {
             query.$text = { $search: search };
         }
-        if (lessonId) {
-            query.lessonId = lessonId;
+        if (topicId) {
+            query.topicId = topicId;
         }
         if (level) {
             query.level = level;
@@ -46,7 +46,7 @@ exports.getWords = async (req, res) => {
             limit,
             sortBy,
             sortOrder,
-            populate: "lessonId",
+            populate: "topicId",
         });
 
         res.status(200).json({
@@ -80,7 +80,7 @@ exports.createWord = async (req, res) => {
 
 exports.getWordById = async (req, res) => {
     try {
-        const word = await Word.findById(req.params.id).populate("lessonId");
+        const word = await Word.findById(req.params.id).populate("topicId");
         if (!word) {
             return res.status(404).json({ success: false, message: "Word not found" });
         }

@@ -1,1 +1,12 @@
 npm install jsonwebtoken
+Topic lọc theo level
+- Word để học ngôn ngữ
+- Question để luyện tập
+
+Exam chứa các Question để làm đề thi
+
+Progress lưu các
+- Topic đã hoàn thành
+- Word đã học
+- Exam đã làm
+
