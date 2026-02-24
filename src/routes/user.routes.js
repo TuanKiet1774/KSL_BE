@@ -6,15 +6,25 @@ const {
     getUserById,
     updateUser,
     deleteUser,
+    register,
+    login
 } = require("../controllers/user.controller");
 
-router.route("/")
-    .get(getUsers)
-    .post(createUser);
+const { protect, authorize } = require("../middleware/authMiddleware");
 
+// Public routes
+router.post("/register", register);
+router.post("/login", login);
+
+// Admin only routes (Example: only admin can get all users or create new ones)
+router.route("/")
+    .get(protect, authorize("admin"), getUsers)
+    .post(protect, authorize("admin"), createUser);
+
+// Admin or Self routes
 router.route("/:id")
-    .get(getUserById)
-    .put(updateUser)
-    .delete(deleteUser);
+    .get(protect, getUserById)
+    .put(protect, updateUser)
+    .delete(protect, authorize("admin"), deleteUser);
 
 module.exports = router;
