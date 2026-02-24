@@ -15,23 +15,18 @@ const progressRoutes = require("./routes/progress.routes");
 const examRoutes = require("./routes/exam.routes");
 const feedbackRoutes = require("./routes/feedback.routes");
 
-// 1. Security Headers
 app.use(helmet());
 
-// 2. CORS
 app.use(cors());
 
-// 3. Body Parser & Cookie Parser
-app.use(express.json({ limit: "10kb" })); // Limit body size
+app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 
-// 4. Data Sanitization against NoSQL Query Injection
 app.use(mongoSanitize());
 
-// 5. Rate Limiting
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
+    windowMs: 15 * 60 * 1000, 
+    max: 100, 
     message: "Too many requests from this IP, please try again after 15 minutes"
 });
 app.use("/api", limiter);
