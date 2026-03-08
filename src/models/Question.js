@@ -32,12 +32,12 @@ const questionSchema = new mongoose.Schema({
         default: "multiple-choice",
         index: true,
     },
-    level: {
-        type: String,
-        enum: ["Beginner", "Intermediate", "Advanced"],
-        default: "Beginner",
-        index: true,
-    },
+    // level: {
+    //     type: String,
+    //     enum: ["Beginner", "Intermediate", "Advanced"],
+    //     default: "Beginner",
+    //     index: true,
+    // },
     description: {
         type: String,
         trim: true,

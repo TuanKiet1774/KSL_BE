@@ -1,7 +1,11 @@
 npm install jsonwebtoken
-Topic lọc theo level
+
+User có Level được tăng cấp khi hoàn thiện các topic thuộc level đó
+User có Exp được tăng khi học các Word, Exp tăng thì sẽ học được nhiều Word thuộc topic
+
+Topic lọc theo level ("Beginner", "Intermediate", "Advanced")
+Trong Topic ứng với level đó thì sẽ có
 - Word để học ngôn ngữ
-- Question để luyện tập
 
 Exam chứa các Question để làm đề thi
 

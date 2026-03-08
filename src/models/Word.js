@@ -28,12 +28,12 @@ const wordSchema = new mongoose.Schema({
         index: true,
     },
 
-    level: {
-        type: String,
-        enum: ["Beginner", "Intermediate", "Advanced"],
-        default: "Beginner",
-        index: true,
-    },
+    // level: {
+    //     type: String,
+    //     enum: ["Beginner", "Intermediate", "Advanced"],
+    //     default: "Beginner",
+    //     index: true,
+    // },
 
     media: {
         url: {
