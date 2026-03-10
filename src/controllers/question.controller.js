@@ -40,8 +40,8 @@ exports.getQuestions = async (req, res) => {
         const result = await paginate(Question, query, {
             page,
             limit,
-            sortBy,
-            sortOrder,
+            sortBy: sortBy || "createdAt",
+            sortOrder: sortOrder || "desc",
             populate: "topicId",
         });
 

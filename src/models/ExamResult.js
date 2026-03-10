@@ -24,19 +24,10 @@ const examResultSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    maxScore: {
-        type: Number,
-        default: 0
-    },
     timeSpent: {
         type: Number, // In seconds
         default: 0
     },
-    status: {
-        type: String,
-        enum: ["in-progress", "completed"],
-        default: "completed"
-    }
 }, { timestamps: true });
 
 examResultSchema.index({ userId: 1, examId: 1 });

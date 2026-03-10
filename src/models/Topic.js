@@ -40,7 +40,7 @@ const topicSchema = new mongoose.Schema({
         default: 0,
         index: true,
     },
-    order: {
+    expRequired: {
         type: Number,
         default: 0,
         index: true,

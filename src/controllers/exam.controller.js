@@ -20,8 +20,8 @@ exports.getExams = async (req, res) => {
     const result = await paginate(Exam, query, {
       page,
       limit,
-      sortBy,
-      sortOrder,
+      sortBy: sortBy || "createdAt",
+      sortOrder: sortOrder || "desc",
       populate: [{ path: "topicId", select: "name" }],
     });
 

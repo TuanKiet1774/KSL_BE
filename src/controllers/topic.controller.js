@@ -37,8 +37,8 @@ exports.getTopics = async (req, res) => {
         const result = await paginate(Topic, query, {
             page,
             limit,
-            sortBy: sortBy || "order",
-            sortOrder: sortOrder || "asc",
+            sortBy: sortBy || "createdAt",
+            sortOrder: sortOrder || "desc",
         });
 
         const userExp = req.user ? req.user.exp : 0;

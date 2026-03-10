@@ -14,3 +14,5 @@ Progress lưu các
 - Word đã học
 - Exam đã làm
 
+Ý tưởng:
+- Câu hỏi trả lời bằng camera (Ví dụ: Hãy tạo ký hiệu ứng với từ sau), Chụp ảnh để nhận diện và chuyển sang văn bản tương ứng và so với đáp án. 

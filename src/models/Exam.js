@@ -21,14 +21,6 @@ const examSchema = new mongoose.Schema({
         ref: "Question",
         required: true
     }],
-    duration: {
-        type: Number, // In seconds
-        default: 1800, // 30 minutes
-    },
-    maxScore: {
-        type: Number,
-        default: 0
-    },
     isActive: {
         type: Boolean,
         default: true,

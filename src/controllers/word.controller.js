@@ -44,8 +44,8 @@ exports.getWords = async (req, res) => {
         const result = await paginate(Word, query, {
             page,
             limit,
-            sortBy,
-            sortOrder,
+            sortBy: sortBy || "createdAt",
+            sortOrder: sortOrder || "desc",
             populate: "topicId",
         });
 

@@ -1,108 +1,122 @@
 const mongoose = require("mongoose");
 
-const questionSchema = new mongoose.Schema({
+const questionSchema = new mongoose.Schema(
+  {
     question: {
-        type: String,
-        required: true,
-        trim: true,
-        minlength: 3,
-        maxlength: 500,
-        index: true,
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 3,
+      maxlength: 500,
+      index: true,
     },
     slug: {
-        type: String,
-        required: true,
-        trim: true,
-        minlength: 3,
-        maxlength: 100,
-        index: true,
-        unique: true,
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 3,
+      maxlength: 100,
+      index: true,
+      unique: true,
     },
     type: {
-        type: String,
-        required: true,
-        enum: [
-            "multiple-choice",
-            "sign-to-text",
-            "text-to-sign",
-            "image-to-sign",
-            "video-recognition",
-            "practice"
-        ],
-        default: "multiple-choice",
-        index: true,
+      type: String,
+      required: true,
+      enum: [
+        "multiple-choice",
+        "sign-to-text",
+        "text-to-sign",
+        "image-to-sign",
+        "video-recognition",
+        "practice",
+      ],
+      default: "multiple-choice",
+      index: true,
     },
-    // level: {
-    //     type: String,
-    //     enum: ["Beginner", "Intermediate", "Advanced"],
-    //     default: "Beginner",
-    //     index: true,
-    // },
     description: {
-        type: String,
-        trim: true,
-        maxlength: 1000,
-        default: "",
+      type: String,
+      trim: true,
+      maxlength: 1000,
+      default: "",
     },
     media: {
-        url: {
-            type: String,
-            default: "",
-        },
-        type: {
-            type: String,
-            enum: ["image", "gif", "video"],
-            default: "image",
-        },
+      url: {
+        type: String,
+        default: "",
+      },
+      type: {
+        type: String,
+        enum: ["image", "gif", "video"],
+        default: "image",
+      },
     },
     options: {
-        type: [
-            {
-                content: { type: String, default: "" },
-                media: {
-                    url: { type: String, default: "" },
-                    type: {
-                        type: String,
-                        enum: ["image", "gif", "video", "none"],
-                        default: "none",
-                    },
-                },
-                isCorrect: { type: Boolean, required: true, default: false }
-            }
-        ],
-        validate: {
-            validator: function (v) {
-                if (["video-recognition", "practice"].includes(this.type)) {
-                    return true;
-                }
-                const hasMinOptions = v && v.length >= 2;
-                const correctAnswers = v ? v.filter(opt => opt.isCorrect === true) : [];
-                const hasExactlyOneCorrectAnswer = correctAnswers.length === 1;
-                return hasMinOptions && hasExactlyOneCorrectAnswer;
+      type: [
+        {
+          content: { type: String, default: "" },
+          media: {
+            url: { type: String, default: "" },
+            type: {
+              type: String,
+              enum: ["image", "gif", "video", "none"],
+              default: "none",
             },
-            message: "A question must have at least 2 options and exactly one correct answer."
-        }
+          },
+          isCorrect: { type: Boolean, required: true, default: false },
+        },
+      ],
+      validate: {
+        validator: function (v) {
+          if (["video-recognition", "practice"].includes(this.type)) {
+            return true;
+          }
+          const hasMinOptions = v && v.length >= 2;
+          const correctAnswers = v
+            ? v.filter((opt) => opt.isCorrect === true)
+            : [];
+          const hasExactlyOneCorrectAnswer = correctAnswers.length === 1;
+          return hasMinOptions && hasExactlyOneCorrectAnswer;
+        },
+        message:
+          "A question must have at least 2 options and exactly one correct answer.",
+      },
     },
     topicId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Topic",
-        required: true,
-        index: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Topic",
+      required: true,
+      index: true,
+    },
+    score: {
+      type: Number,
+      default: 1,
+    },
+    time: {
+      type: Number, // In seconds
+      default: 0,
     },
     isActive: {
-        type: Boolean,
-        default: true,
-        index: true,
-    }
-}, { timestamps: true });
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+  },
+  { timestamps: true },
+);
 
-questionSchema.index({ topicId: 1, isActive: 1, difficulty: 1, type: 1, createdAt: -1 });
+questionSchema.index({
+  topicId: 1,
+  isActive: 1,
+  difficulty: 1,
+  type: 1,
+  createdAt: -1,
+});
 questionSchema.index(
-    { question: "text", slug: "text", description: "text" },
-    {
-        weights: { question: 10, slug: 5, description: 1 },
-        name: "QuestionTextIndex"
-    }
+  { question: "text", slug: "text", description: "text" },
+  {
+    weights: { question: 10, slug: 5, description: 1 },
+    name: "QuestionTextIndex",
+  },
 );
 questionSchema.index({ createdAt: -1 });
 
