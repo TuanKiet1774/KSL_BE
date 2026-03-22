@@ -9,6 +9,7 @@ const wordRoutes = require("./routes/word.routes");
 const progressRoutes = require("./routes/progress.routes");
 const examRoutes = require("./routes/exam.routes");
 const feedbackRoutes = require("./routes/feedback.routes");
+const stasticRoutes = require("./routes/stastic.routes");
 const { protect } = require("./middleware/authMiddleware");
 
 app.use(cors());
@@ -23,6 +24,7 @@ app.use("/api/words", protect, wordRoutes);
 app.use("/api/progress", protect, progressRoutes);
 app.use("/api/exams", protect, examRoutes);
 app.use("/api/feedbacks", protect, feedbackRoutes);
+app.use("/api/stastic", protect, stasticRoutes);
 
 app.get("/", (req, res) => {
     res.send("API is running...");

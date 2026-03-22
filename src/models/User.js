@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const { updateStastic } = require("../utils/stasticManager");
+
 
 const userSchema = new mongoose.Schema(
   {
@@ -112,5 +114,25 @@ userSchema.pre("save", async function () {
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
+
+// Middleware to track if it's a new document
+userSchema.pre("save", function (next) {
+  this.wasNew = this.isNew;
+  next();
+});
+
+userSchema.post("save", async function (doc, next) {
+  if (this.wasNew) {
+    await updateStastic("userCount", 1);
+  }
+  next();
+});
+
+userSchema.post("findOneAndDelete", async function (doc, next) {
+  if (doc) {
+    await updateStastic("userCount", -1);
+  }
+  next();
+});
 
 module.exports = mongoose.model("User", userSchema);

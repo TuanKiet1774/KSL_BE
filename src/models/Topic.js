@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { updateStastic } = require("../utils/stasticManager");
 
 const topicSchema = new mongoose.Schema({
     name: {
@@ -55,5 +56,25 @@ topicSchema.index(
     }
 );
 topicSchema.index({ createdAt: -1 });
+
+// Middleware to track if it's a new document
+topicSchema.pre("save", function (next) {
+    this.wasNew = this.isNew;
+    next();
+});
+
+topicSchema.post("save", async function (doc, next) {
+    if (this.wasNew) {
+        await updateStastic("topicCount", 1);
+    }
+    next();
+});
+
+topicSchema.post("findOneAndDelete", async function (doc, next) {
+    if (doc) {
+        await updateStastic("topicCount", -1);
+    }
+    next();
+});
 
 module.exports = mongoose.model("Topic", topicSchema);

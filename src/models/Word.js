@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { updateStastic } = require("../utils/stasticManager");
 
 const wordSchema = new mongoose.Schema({
     name: {
@@ -74,5 +75,25 @@ wordSchema.index(
         name: "WordTextIndex"
     }
 );
+
+// Middleware to track if it's a new document
+wordSchema.pre("save", function (next) {
+    this.wasNew = this.isNew;
+    next();
+});
+
+wordSchema.post("save", async function (doc, next) {
+    if (this.wasNew) {
+        await updateStastic("wordCount", 1);
+    }
+    next();
+});
+
+wordSchema.post("findOneAndDelete", async function (doc, next) {
+    if (doc) {
+        await updateStastic("wordCount", -1);
+    }
+    next();
+});
 
 module.exports = mongoose.model("Word", wordSchema);
