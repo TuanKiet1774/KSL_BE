@@ -55,7 +55,7 @@ const userSchema = new mongoose.Schema(
 
     avatar: {
       type: String,
-      default: "src/assets/user.jpg",
+      default: "",
     },
 
     birthday: {
@@ -69,14 +69,16 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
-    level: { //Level để xác nhận cấp độ của người dùng
+    level: {
+      //Level để xác nhận cấp độ của người dùng
       type: String,
       enum: ["Beginner", "Intermediate", "Advanced"],
       default: "Beginner",
       index: true,
     },
 
-    exp: { //Kinh nghiệm hiện tại của người dùng, dùng để mở khoá các word
+    exp: {
+      //Kinh nghiệm hiện tại của người dùng, dùng để mở khoá các word
       type: Number,
       default: 0,
     },
@@ -92,7 +94,12 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.index({ username: "text", fullname: "text", email: "text", address: "text" });
+userSchema.index({
+  username: "text",
+  fullname: "text",
+  email: "text",
+  address: "text",
+});
 userSchema.index({ role: 1, isActive: 1 });
 
 userSchema.pre("save", async function () {
