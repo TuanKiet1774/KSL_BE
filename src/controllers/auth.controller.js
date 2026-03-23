@@ -112,3 +112,32 @@ exports.getProfile = async (req, res) => {
         });
     }
 };
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const { fullname, avatar, phone, birthday, address } = req.body;
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { fullname, avatar, phone, birthday, address },
+            { new: true, runValidators: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: user,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
