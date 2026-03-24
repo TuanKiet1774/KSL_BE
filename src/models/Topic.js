@@ -40,11 +40,6 @@ const topicSchema = new mongoose.Schema({
         type: Number,
         default: 0,
         index: true,
-    },
-    expRequired: {
-        type: Number,
-        default: 0,
-        index: true,
     }
 }, { timestamps: true });
 
@@ -63,18 +58,16 @@ topicSchema.pre("save", function (next) {
     next();
 });
 
-topicSchema.post("save", async function (doc, next) {
+topicSchema.post("save", async function (doc) {
     if (this.wasNew) {
         await updateStastic("topicCount", 1);
     }
-    next();
 });
 
-topicSchema.post("findOneAndDelete", async function (doc, next) {
+topicSchema.post("findOneAndDelete", async function (doc) {
     if (doc) {
         await updateStastic("topicCount", -1);
     }
-    next();
 });
 
 module.exports = mongoose.model("Topic", topicSchema);

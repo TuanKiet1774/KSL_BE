@@ -82,18 +82,16 @@ wordSchema.pre("save", function (next) {
     next();
 });
 
-wordSchema.post("save", async function (doc, next) {
+wordSchema.post("save", async function (doc) {
     if (this.wasNew) {
         await updateStastic("wordCount", 1);
     }
-    next();
 });
 
-wordSchema.post("findOneAndDelete", async function (doc, next) {
+wordSchema.post("findOneAndDelete", async function (doc) {
     if (doc) {
         await updateStastic("wordCount", -1);
     }
-    next();
 });
 
 module.exports = mongoose.model("Word", wordSchema);

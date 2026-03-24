@@ -121,18 +121,16 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-userSchema.post("save", async function (doc, next) {
+userSchema.post("save", async function (doc) {
   if (this.wasNew) {
     await updateStastic("userCount", 1);
   }
-  next();
 });
 
-userSchema.post("findOneAndDelete", async function (doc, next) {
+userSchema.post("findOneAndDelete", async function (doc) {
   if (doc) {
     await updateStastic("userCount", -1);
   }
-  next();
 });
 
 module.exports = mongoose.model("User", userSchema);

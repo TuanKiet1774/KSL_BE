@@ -34,18 +34,16 @@ feedBackSchema.pre("save", function (next) {
   next();
 });
 
-feedBackSchema.post("save", async function (doc, next) {
+feedBackSchema.post("save", async function (doc) {
   if (this.wasNew) {
     await updateStastic("feedbackCount", 1);
   }
-  next();
 });
 
-feedBackSchema.post("findOneAndDelete", async function (doc, next) {
+feedBackSchema.post("findOneAndDelete", async function (doc) {
   if (doc) {
     await updateStastic("feedbackCount", -1);
   }
-  next();
 });
 
 module.exports = mongoose.model("FeedBack", feedBackSchema);
