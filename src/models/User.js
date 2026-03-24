@@ -83,13 +83,7 @@ const userSchema = new mongoose.Schema(
       //Kinh nghiệm hiện tại của người dùng, dùng để mở khoá các word
       type: Number,
       default: 0,
-    },
-
-    isActive: {
-      type: Boolean,
-      default: true,
-      index: true,
-    },
+    }
   },
   {
     timestamps: true,

@@ -20,12 +20,7 @@ const examSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Question",
         required: true
-    }],
-    isActive: {
-        type: Boolean,
-        default: true,
-        index: true,
-    }
+    }]
 }, { timestamps: true });
 
 examSchema.index({ topicId: 1, createdAt: -1 });

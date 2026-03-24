@@ -29,13 +29,6 @@ const wordSchema = new mongoose.Schema({
         index: true,
     },
 
-    // level: {
-    //     type: String,
-    //     enum: ["Beginner", "Intermediate", "Advanced"],
-    //     default: "Beginner",
-    //     index: true,
-    // },
-
     media: {
         url: {
             type: String,
@@ -60,11 +53,6 @@ const wordSchema = new mongoose.Schema({
         index: true,
     },
 
-    isActive: {
-        type: Boolean,
-        default: true,
-        index: true,
-    },
 }, { timestamps: true });
 
 wordSchema.index({ topicId: 1, createdAt: -1 });
