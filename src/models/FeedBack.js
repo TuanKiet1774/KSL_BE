@@ -29,9 +29,8 @@ feedBackSchema.index({ rating: 1 });
 feedBackSchema.index({ createdAt: -1 });
 
 // Middleware to track if it's a new document
-feedBackSchema.pre("save", function (next) {
+feedBackSchema.pre("save", async function () {
   this.wasNew = this.isNew;
-  next();
 });
 
 feedBackSchema.post("save", async function (doc) {

@@ -77,9 +77,8 @@ wordSchema.index(
 );
 
 // Middleware to track if it's a new document
-wordSchema.pre("save", function (next) {
+wordSchema.pre("save", async function () {
     this.wasNew = this.isNew;
-    next();
 });
 
 wordSchema.post("save", async function (doc) {

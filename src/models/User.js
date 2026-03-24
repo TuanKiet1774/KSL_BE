@@ -116,9 +116,8 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 // Middleware to track if it's a new document
-userSchema.pre("save", function (next) {
+userSchema.pre("save", async function () {
   this.wasNew = this.isNew;
-  next();
 });
 
 userSchema.post("save", async function (doc) {

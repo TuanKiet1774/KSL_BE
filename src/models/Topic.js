@@ -53,9 +53,8 @@ topicSchema.index(
 topicSchema.index({ createdAt: -1 });
 
 // Middleware to track if it's a new document
-topicSchema.pre("save", function (next) {
+topicSchema.pre("save", async function () {
     this.wasNew = this.isNew;
-    next();
 });
 
 topicSchema.post("save", async function (doc) {
