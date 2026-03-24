@@ -5,7 +5,6 @@ exports.getQuestions = async (req, res) => {
     try {
         const {
             question,
-            slug,
             topicId,
             type,
             level,
@@ -33,10 +32,7 @@ exports.getQuestions = async (req, res) => {
         if (question) {
             query.question = { $regex: question, $options: "i" };
         }
-        if (slug) {
-            query.slug = { $regex: slug, $options: "i" };
-        }
-
+        
         const result = await paginate(Question, query, {
             page,
             limit,

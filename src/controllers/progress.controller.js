@@ -2,7 +2,6 @@ const Progress = require("../models/Progress");
 const Word = require("../models/Word");
 const User = require("../models/User");
 
-// Lấy tiến độ của người dùng hiện tại
 exports.getProgress = async (req, res) => {
     try {
         let progress = await Progress.findOne({ userId: req.params.userId })

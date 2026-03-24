@@ -5,11 +5,9 @@ exports.getWords = async (req, res) => {
     try {
         const {
             name,
-            slug,
             description,
             topicId,
             level,
-            isActive,
             page,
             limit,
             sortBy,
@@ -31,14 +29,8 @@ exports.getWords = async (req, res) => {
         if (name) {
             query.name = { $regex: name, $options: "i" };
         }
-        if (slug) {
-            query.slug = { $regex: slug, $options: "i" };
-        }
         if (description) {
             query.description = { $regex: description, $options: "i" };
-        }
-        if (isActive !== undefined) {
-            query.isActive = isActive === "true";
         }
 
         const result = await paginate(Word, query, {

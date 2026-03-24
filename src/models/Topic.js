@@ -10,14 +10,6 @@ const topicSchema = new mongoose.Schema({
         maxlength: 100,
         index: true,
     },
-    slug: {
-        type: String,
-        required: true,
-        trim: true,
-        minlength: 3,
-        maxlength: 100,
-        index: true,
-    },
     level: {
         type: String,
         enum: ["Beginner", "Intermediate", "Advanced"],
@@ -44,9 +36,9 @@ const topicSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 topicSchema.index(
-    { name: "text", slug: "text", description: "text" },
+    { name: "text", description: "text" },
     {
-        weights: { name: 10, slug: 5, description: 1 },
+        weights: { name: 10, description: 1 },
         name: "TopicTextIndex"
     }
 );

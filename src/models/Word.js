@@ -11,15 +11,6 @@ const wordSchema = new mongoose.Schema({
         index: true,
     },
 
-    slug: {
-        type: String,
-        required: true,
-        trim: true,
-        minlength: 3,
-        maxlength: 100,
-        index: true,
-    },
-
     description: {
         type: String,
         required: true,
@@ -57,9 +48,9 @@ const wordSchema = new mongoose.Schema({
 
 wordSchema.index({ topicId: 1, createdAt: -1 });
 wordSchema.index(
-    { name: "text", slug: "text", description: "text" },
+    { name: "text", description: "text" },
     {
-        weights: { name: 10, slug: 5, description: 1 },
+        weights: { name: 10, description: 1 },
         name: "WordTextIndex"
     }
 );

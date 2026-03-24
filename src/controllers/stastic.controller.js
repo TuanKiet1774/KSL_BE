@@ -12,10 +12,6 @@ exports.getStastics = async (req, res) => {
       Word.countDocuments(),
       FeedBack.countDocuments(),
     ]);
-
-    // Ooptionally update/save to the Stastic model if needed
-    // For now, we'll return the current live counts
-    // and also update the record in the Stastic collection (single record)
     
     let stastic = await Stastic.findOne();
     if (!stastic) {

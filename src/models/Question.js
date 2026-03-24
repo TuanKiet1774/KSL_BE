@@ -10,15 +10,6 @@ const questionSchema = new mongoose.Schema(
       maxlength: 500,
       index: true,
     },
-    slug: {
-      type: String,
-      required: true,
-      trim: true,
-      minlength: 3,
-      maxlength: 100,
-      index: true,
-      unique: true,
-    },
     type: {
       type: String,
       required: true,
@@ -107,9 +98,9 @@ questionSchema.index({
   createdAt: -1,
 });
 questionSchema.index(
-  { question: "text", slug: "text", description: "text" },
+  { question: "text", description: "text" },
   {
-    weights: { question: 10, slug: 5, description: 1 },
+    weights: { question: 10, description: 1 },
     name: "QuestionTextIndex",
   },
 );
