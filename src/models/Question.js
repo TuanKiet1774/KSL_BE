@@ -14,12 +14,9 @@ const questionSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
-        "multiple-choice",
-        "sign-to-text",
-        "text-to-sign",
-        "image-to-sign",
-        "video-recognition",
-        "practice",
+        "multiple-choice", //Nhiều đáp án => chọn 1
+        "short-answer", //Gõ câu trả lời
+        "recognition" //Trả lời bằng camera nhận diện
       ],
       default: "multiple-choice",
       index: true,
@@ -58,7 +55,7 @@ const questionSchema = new mongoose.Schema(
       ],
       validate: {
         validator: function (v) {
-          if (["video-recognition", "practice"].includes(this.type)) {
+          if (["recognition"].includes(this.type)) {
             return true;
           }
           const hasMinOptions = v && v.length >= 2;
