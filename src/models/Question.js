@@ -55,18 +55,18 @@ const questionSchema = new mongoose.Schema(
       ],
       validate: {
         validator: function (v) {
-          if (["recognition"].includes(this.type)) {
-            return true;
-          }
-          const hasMinOptions = v && v.length >= 2;
+          const minOptions = this.type === "multiple-choice" ? 2 : 1;
+          const hasMinOptions = v && v.length >= minOptions;
           const correctAnswers = v
             ? v.filter((opt) => opt.isCorrect === true)
             : [];
           const hasExactlyOneCorrectAnswer = correctAnswers.length === 1;
           return hasMinOptions && hasExactlyOneCorrectAnswer;
         },
-        message:
-          "A question must have at least 2 options and exactly one correct answer.",
+        message: (props) => {
+          const minOptions = props.instance.type === "multiple-choice" ? 2 : 1;
+          return `A ${props.instance.type} question must have at least ${minOptions} options and exactly one correct answer.`;
+        },
       },
     },
     topicId: {
