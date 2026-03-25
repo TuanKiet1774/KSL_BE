@@ -8,7 +8,7 @@ exports.getExams = async (req, res) => {
   try {
     const { topicId, page, limit, sortBy, sortOrder, search } = req.query;
 
-    const query = { isActive: true };
+    const query = {};
 
     if (search) {
       query.title = { $regex: search, $options: "i" };

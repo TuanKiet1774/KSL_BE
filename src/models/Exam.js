@@ -16,6 +16,7 @@ const examSchema = new mongoose.Schema({
         ref: "Topic",
         index: true,
     },
+
     questions: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Question",

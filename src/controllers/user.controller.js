@@ -12,7 +12,6 @@ exports.getUsers = async (req, res) => {
       email,
       role,
       level,
-      isActive,
       page,
       limit,
       sortBy,
@@ -46,9 +45,7 @@ exports.getUsers = async (req, res) => {
     if (level) {
       query.level = level;
     }
-    if (isActive !== undefined) {
-      query.isActive = isActive === "true";
-    }
+
     if (birthday) {
       const date = new Date(birthday);
       if (!isNaN(date)) {

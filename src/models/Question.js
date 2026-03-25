@@ -16,9 +16,15 @@ const questionSchema = new mongoose.Schema(
       enum: [
         "multiple-choice", //Nhiều đáp án => chọn 1
         "short-answer", //Gõ câu trả lời
-        "recognition" //Trả lời bằng camera nhận diện
+        "recognition", //Trả lời bằng camera nhận diện
       ],
       default: "multiple-choice",
+      index: true,
+    },
+    difficulty: {
+      type: String,
+      enum: ["easy", "medium", "hard"],
+      default: "easy",
       index: true,
     },
     description: {
@@ -55,6 +61,9 @@ const questionSchema = new mongoose.Schema(
       ],
       validate: {
         validator: function (v) {
+          if (!v || v.length === 0) {
+            return false;
+          }
           const minOptions = this.type === "multiple-choice" ? 2 : 1;
           const hasMinOptions = v && v.length >= minOptions;
           const correctAnswers = v
@@ -64,8 +73,9 @@ const questionSchema = new mongoose.Schema(
           return hasMinOptions && hasExactlyOneCorrectAnswer;
         },
         message: (props) => {
-          const minOptions = props.instance.type === "multiple-choice" ? 2 : 1;
-          return `A ${props.instance.type} question must have at least ${minOptions} options and exactly one correct answer.`;
+          const type = props.instance ? props.instance.type : "default";
+          const minOptions = type === "multiple-choice" ? 2 : 1;
+          return `A ${type} question must have at least ${minOptions} options and exactly one correct answer.`;
         },
       },
     },
@@ -89,7 +99,6 @@ const questionSchema = new mongoose.Schema(
 
 questionSchema.index({
   topicId: 1,
-  isActive: 1,
   difficulty: 1,
   type: 1,
   createdAt: -1,
