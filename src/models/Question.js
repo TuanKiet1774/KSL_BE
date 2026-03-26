@@ -85,7 +85,7 @@ const questionSchema = new mongoose.Schema(
     },
     time: {
       type: Number, // In seconds
-      default: 0,
+      default: 30,
     }
   },
   { timestamps: true },
