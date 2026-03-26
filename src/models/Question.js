@@ -27,12 +27,6 @@ const questionSchema = new mongoose.Schema(
       default: "easy",
       index: true,
     },
-    description: {
-      type: String,
-      trim: true,
-      maxlength: 1000,
-      default: "",
-    },
     media: {
       url: {
         type: String,
@@ -104,9 +98,9 @@ questionSchema.index({
   createdAt: -1,
 });
 questionSchema.index(
-  { question: "text", description: "text" },
+  { question: "text"},
   {
-    weights: { question: 10, description: 1 },
+    weights: { question: 10},
     name: "QuestionTextIndex",
   },
 );
