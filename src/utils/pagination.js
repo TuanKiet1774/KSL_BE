@@ -1,7 +1,7 @@
 const paginate = async (model, query = {}, options = {}) => {
     const {
         page = 1,
-        limit = 10,
+        limit = 1000,
         sortBy = "createdAt",
         sortOrder = "desc",
         select = "",

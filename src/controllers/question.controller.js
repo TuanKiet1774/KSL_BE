@@ -18,7 +18,7 @@ exports.getQuestions = async (req, res) => {
         const query = {};
 
         if (search) {
-            query.$text = { $search: search };
+            query.question = { $regex: search, $options: "i" };
         }
         if (topicId) {
             query.topicId = topicId;
