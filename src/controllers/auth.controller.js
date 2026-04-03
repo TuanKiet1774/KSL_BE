@@ -1,9 +1,15 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
-const generateToken = (id) => {
+const generateAccessToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRE,
+        expiresIn: process.env.JWT_EXPIRE || "15m",
+    });
+};
+
+const generateRefreshToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET || "refresh_secret_ksl_2026", {
+        expiresIn: "7d",
     });
 };
 
@@ -78,6 +84,21 @@ exports.login = async (req, res) => {
             });
         }
 
+        if (user.role !== "admin") {
+            return res.status(403).json({
+                success: false,
+                message: "Chỉ có quản trị viên mới có thể truy cập",
+            });
+        }
+
+        const accessToken = generateAccessToken(user._id);
+        const refreshToken = generateRefreshToken(user._id);
+
+        // Lưu phiên đăng nhập mới nhất
+        user.currentSessionToken = accessToken;
+        user.refreshToken = refreshToken;
+        await user.save();
+
         res.status(200).json({
             success: true,
             data: {
@@ -86,7 +107,8 @@ exports.login = async (req, res) => {
                 fullname: user.fullname,
                 email: user.email,
                 role: user.role,
-                token: generateToken(user._id),
+                accessToken: accessToken,
+                refreshToken: refreshToken,
             },
         });
     } catch (error) {
@@ -139,5 +161,40 @@ exports.updateProfile = async (req, res) => {
             success: false,
             message: error.message,
         });
+    }
+};
+
+exports.refreshToken = async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            return res.status(401).json({ success: false, message: "Refresh token is required" });
+        }
+
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || "refresh_secret_ksl_2026");
+        const user = await User.findById(decoded.id);
+
+        if (!user || user.refreshToken !== refreshToken) {
+            return res.status(401).json({ 
+                success: false, 
+                message: "Refresh token invalid hoặc đã bị đăng xuất từ thiết bị khác" 
+            });
+        }
+
+        const newAccessToken = generateAccessToken(user._id);
+        const newRefreshToken = generateRefreshToken(user._id);
+
+        user.currentSessionToken = newAccessToken;
+        user.refreshToken = newRefreshToken;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+        });
+    } catch (error) {
+        res.status(401).json({ success: false, message: "Refresh token expired hoặc không hợp lệ" });
     }
 };

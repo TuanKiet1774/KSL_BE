@@ -30,6 +30,15 @@ exports.protect = async (req, res, next) => {
             });
         }
 
+        // Kiểm tra xem token này có phải là phiên đăng nhập mới nhất không
+        if (req.user.currentSessionToken && req.user.currentSessionToken !== token) {
+            return res.status(401).json({
+                success: false,
+                message: "Tài khoản của bạn đang đăng nhập trên thiết bị khác",
+                code: "SESSION_EXPIRED"
+            });
+        }
+
         next();
     } catch (error) {
         return res.status(401).json({

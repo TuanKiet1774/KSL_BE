@@ -40,7 +40,6 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
       validate: {
         validator: function(v) {
-          // At least 1 uppercase, 1 digit, 1 special char, no whitespace
           return /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])(?!.*\s).+$/.test(v);
         },
         message: "Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt và không chứa khoảng trắng"
@@ -79,7 +78,6 @@ const userSchema = new mongoose.Schema(
     },
 
     level: {
-      //Level để xác nhận cấp độ của người dùng
       type: String,
       enum: ["Beginner", "Intermediate", "Advanced"],
       default: "Beginner",
@@ -87,9 +85,16 @@ const userSchema = new mongoose.Schema(
     },
 
     exp: {
-      //Kinh nghiệm hiện tại của người dùng, dùng để mở khoá các word
       type: Number,
       default: 0,
+    },
+    currentSessionToken: {
+      type: String,
+      default: null,
+    },
+    refreshToken: {
+        type: String,
+        default: null,
     }
   },
   {
