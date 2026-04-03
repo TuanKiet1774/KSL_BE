@@ -62,6 +62,40 @@ topicSchema.post("save", async function (doc) {
 topicSchema.post("findOneAndDelete", async function (doc) {
     if (doc) {
         await updateStastic("topicCount", -1);
+        
+        const topicId = doc._id;
+        
+        try {
+            // 1. Xóa tất cả từ vựng thuộc chủ đề này
+            const words = await mongoose.model("Word").find({ topicId });
+            const wordIds = words.map(w => w._id);
+            if (wordIds.length > 0) {
+                await mongoose.model("Word").deleteMany({ topicId });
+                // Cập nhật thống kê số lượng từ
+                await updateStastic("wordCount", -wordIds.length);
+            }
+            
+            // 2. Xóa tất cả câu hỏi thuộc chủ đề này
+            await mongoose.model("Question").deleteMany({ topicId });
+            
+            // 3. Cập nhật Progress: Xóa topic khỏi danh sách hoàn thành của người dùng
+            await mongoose.model("Progress").updateMany(
+                { "completedTopics.topicId": topicId },
+                { $pull: { completedTopics: { topicId: topicId } } }
+            );
+            
+            // 4. Cập nhật Progress: Xóa các từ vựng đã học thuộc chủ đề này
+            if (wordIds.length > 0) {
+                await mongoose.model("Progress").updateMany(
+                    { "learnedWords.wordId": { $in: wordIds } },
+                    { $pull: { learnedWords: { wordId: { $in: wordIds } } } }
+                );
+            }
+            
+            console.log(`Cascade delete completed for topic: ${doc.name}`);
+        } catch (err) {
+            console.error("Error in topic cascade delete:", err);
+        }
     }
 });
 
