@@ -95,6 +95,11 @@ const userSchema = new mongoose.Schema(
     refreshToken: {
         type: String,
         default: null,
+    },
+    gender: {
+        type: String,
+        enum: ["Nam", "Nữ"],
+        default: "Nam",
     }
   },
   {

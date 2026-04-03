@@ -15,7 +15,7 @@ const generateRefreshToken = (id) => {
 
 exports.register = async (req, res) => {
     try {
-        const { username, fullname, email, password, phone, birthday, address } = req.body;
+        const { username, fullname, email, password, phone, birthday, address, gender } = req.body;
         const userExists = await User.findOne({ $or: [{ email }, { username }] });
         if (userExists) {
             return res.status(400).json({
@@ -31,6 +31,7 @@ exports.register = async (req, res) => {
             phone,
             birthday,
             address,
+            gender
         });
 
         if (user) {
@@ -137,11 +138,11 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     try {
-        const { fullname, avatar, phone, birthday, address } = req.body;
+        const { fullname, avatar, phone, birthday, address, gender } = req.body;
 
         const user = await User.findByIdAndUpdate(
             req.user.id,
-            { fullname, avatar, phone, birthday, address },
+            { fullname, avatar, phone, birthday, address, gender },
             { new: true, runValidators: true }
         );
 
