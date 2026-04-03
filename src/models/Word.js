@@ -63,12 +63,28 @@ wordSchema.pre("save", async function () {
 wordSchema.post("save", async function (doc) {
     if (this.wasNew) {
         await updateStastic("wordCount", 1);
+        // Tự động cập nhật totalWord trong Topic
+        try {
+            await mongoose.model("Topic").findByIdAndUpdate(doc.topicId, { 
+                $inc: { totalWord: 1 } 
+            });
+        } catch (err) {
+            console.error("Error updating topic totalWord:", err);
+        }
     }
 });
 
 wordSchema.post("findOneAndDelete", async function (doc) {
     if (doc) {
         await updateStastic("wordCount", -1);
+        // Tự động cập nhật totalWord trong Topic
+        try {
+            await mongoose.model("Topic").findByIdAndUpdate(doc.topicId, { 
+                $inc: { totalWord: -1 } 
+            });
+        } catch (err) {
+            console.error("Error updating topic totalWord (delete):", err);
+        }
     }
 });
 

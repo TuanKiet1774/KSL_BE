@@ -77,7 +77,9 @@ exports.getTopics = async (req, res) => {
 
 exports.createTopic = async (req, res) => {
     try {
-        const topic = await Topic.create(req.body);
+        const data = { ...req.body };
+        delete data.totalWord;
+        const topic = await Topic.create(data);
         res.status(201).json({
             success: true,
             data: topic,
@@ -115,7 +117,9 @@ exports.getTopicById = async (req, res) => {
 
 exports.updateTopic = async (req, res) => {
     try {
-        const topic = await Topic.findByIdAndUpdate(req.params.id, req.body, {
+        const data = { ...req.body };
+        delete data.totalWord;
+        const topic = await Topic.findByIdAndUpdate(req.params.id, data, {
             new: true,
             runValidators: true,
         });

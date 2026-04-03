@@ -11,12 +11,6 @@ const examSchema = new mongoose.Schema({
         trim: true,
         default: "",
     },
-    topicId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Topic",
-        index: true,
-    },
-
     questions: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Question",
@@ -24,6 +18,6 @@ const examSchema = new mongoose.Schema({
     }]
 }, { timestamps: true });
 
-examSchema.index({ topicId: 1, createdAt: -1 });
+examSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("Exam", examSchema);
