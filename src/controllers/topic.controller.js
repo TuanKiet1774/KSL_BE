@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Topic = require("../models/Topic");
 const Progress = require("../models/Progress");
 const paginate = require("../utils/pagination");
@@ -49,16 +50,23 @@ exports.getTopics = async (req, res) => {
             }
         }
 
-        const topicsWithLockStatus = result.data.map((topic, index) => {
+        const topicsWithLockStatus = await Promise.all(result.data.map(async (topic) => {
             const topicObj = topic.toObject();
             const expLocked = userExp < (topic.expRequired || 0);
+            if (!topic.totalWord || topic.totalWord === 0) {
+                const actualCount = await mongoose.model("Word").countDocuments({ topicId: topic._id });
+                if (actualCount > 0) {
+                    topicObj.totalWord = actualCount;
+                    await Topic.findByIdAndUpdate(topic._id, { totalWord: actualCount });
+                }
+            }
 
             return {
                 ...topicObj,
                 isLocked: expLocked,
                 isCompleted: completedTopicIds.includes(topic._id.toString())
             };
-        });
+        }));
 
         res.status(200).json({
             success: true,
