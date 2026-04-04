@@ -9,6 +9,7 @@ const wordRoutes = require("./routes/word.routes");
 const progressRoutes = require("./routes/progress.routes");
 const examRoutes = require("./routes/exam.routes");
 const feedbackRoutes = require("./routes/feedback.routes");
+const stasticRoutes = require("./routes/stastic.routes");
 const favoriteWordRoutes = require("./routes/favoriteWord.routes");
 const learnedWordRoutes = require("./routes/learnedWord.routes");
 const { protect } = require("./middleware/authMiddleware");
