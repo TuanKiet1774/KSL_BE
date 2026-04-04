@@ -1,4 +1,5 @@
 const Word = require("../models/Word");
+const Topic = require("../models/Topic");
 const paginate = require("../utils/pagination");
 
 exports.getWords = async (req, res) => {
@@ -18,9 +19,15 @@ exports.getWords = async (req, res) => {
         const query = {};
 
         if (search) {
+            const matchedTopics = await Topic.find({
+                name: { $regex: search, $options: "i" }
+            }).select('_id');
+            const topicIdsFromSearch = matchedTopics.map(t => t._id);
+
             query.$or = [
                 { name: { $regex: search, $options: "i" } },
-                { description: { $regex: search, $options: "i" } }
+                { description: { $regex: search, $options: "i" } },
+                { topicId: { $in: topicIdsFromSearch } }
             ];
         }
         if (topicId) {
