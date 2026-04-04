@@ -88,7 +88,7 @@ exports.login = async (req, res) => {
         if (user.role !== "admin") {
             return res.status(403).json({
                 success: false,
-                message: "Chỉ có quản trị viên mới có thể truy cập",
+                message: "Tài khoản không có quyền truy cập vào hệ thống quản trị",
             });
         }
 
