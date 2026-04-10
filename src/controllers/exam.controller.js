@@ -9,12 +9,8 @@ exports.getExams = async (req, res) => {
     const { topicId, page, limit, sortBy, sortOrder, search } = req.query;
 
     const query = {};
-
     if (search) {
       query.title = { $regex: search, $options: "i" };
-    }
-    if (topicId) {
-      query.topicId = topicId;
     }
 
     const result = await paginate(Exam, query, {
@@ -22,7 +18,7 @@ exports.getExams = async (req, res) => {
       limit,
       sortBy: sortBy || "createdAt",
       sortOrder: sortOrder || "desc",
-      populate: [{ path: "topicId", select: "name" }],
+      populate: [],
     });
 
     res.status(200).json({
@@ -52,8 +48,7 @@ exports.createExam = async (req, res) => {
 exports.getExamById = async (req, res) => {
   try {
     const exam = await Exam.findById(req.params.id)
-      .populate("questions")
-      .populate("topicId", "name");
+      .populate("questions");
 
     if (!exam) {
       return res

@@ -7,7 +7,7 @@ exports.getQuestions = async (req, res) => {
             question,
             topicId,
             type,
-            level,
+            difficulty,
             page,
             limit,
             sortBy,
@@ -26,8 +26,8 @@ exports.getQuestions = async (req, res) => {
         if (type) {
             query.type = type;
         }
-        if (level) {
-            query.level = level;
+        if (difficulty) {
+            query.difficulty = difficulty;
         }
         if (question) {
             query.question = { $regex: question, $options: "i" };
