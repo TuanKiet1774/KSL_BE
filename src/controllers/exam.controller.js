@@ -27,10 +27,12 @@ exports.getExams = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      count: result.data.length,
+      count: result.data ? result.data.length : 0,
       ...result,
+      data: result.data || []
     });
   } catch (error) {
+    console.error("Error in getExams:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
