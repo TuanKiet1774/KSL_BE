@@ -110,25 +110,8 @@ const userSchema = new mongoose.Schema(
         enum: ["Nam", "Nữ"],
         default: "Nam",
     },
-
-    isVerified: {
-        type: Boolean,
-        default: false,
-        index: true,
-    },
-
-    otpCode: {
-        type: String,
-        default: null,
-        select: false,
-    },
-
-    otpExpires: {
-        type: Date,
-        default: null,
-        select: false,
-    },
   },
+
   {
     timestamps: true,
   },
