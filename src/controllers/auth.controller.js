@@ -277,7 +277,6 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-// ─── VERIFY PASSWORD: Kiểm tra mật khẩu (authenticated) ─────────────────────
 exports.verifyPassword = async (req, res) => {
   try {
     const { password } = req.body;
@@ -309,6 +308,46 @@ exports.verifyPassword = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Mật khẩu chính xác",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ─── VERIFY IDENTITY: Kiểm tra username và email (authenticated) ─────────────
+exports.verifyIdentity = async (req, res) => {
+  try {
+    const { username, email } = req.body;
+
+    if (!username || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng cung cấp username và email",
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy người dùng",
+      });
+    }
+
+    if (user.username !== username || user.email !== email) {
+      return res.status(401).json({
+        success: false,
+        message: "Username hoặc Email không chính xác",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Xác thực danh tính thành công",
     });
   } catch (error) {
     res.status(500).json({
