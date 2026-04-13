@@ -251,12 +251,19 @@ exports.login = async (req, res) => {
         }
 
         if (!user.isVerified) {
-            return res.status(403).json({
-                success: false,
-                message: "Tài khoản chưa được xác thực. Vui lòng kiểm tra email để lấy mã OTP",
-                requireVerification: true,
-                email: user.email,
-            });
+            // Tài khoản tạo trước ngày triển khai OTP (13/04/2026) → tự động xác thực
+            const OTP_DEPLOY_DATE = new Date("2026-04-13T00:00:00Z");
+            if (user.createdAt < OTP_DEPLOY_DATE) {
+                user.isVerified = true;
+                await user.save();
+            } else {
+                return res.status(403).json({
+                    success: false,
+                    message: "Tài khoản chưa được xác thực. Vui lòng kiểm tra email để lấy mã OTP",
+                    requireVerification: true,
+                    email: user.email,
+                });
+            }
         }
 
         if (user.role !== "admin") {

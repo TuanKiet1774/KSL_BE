@@ -144,7 +144,6 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Middleware to track if it's a new document
 userSchema.pre("save", async function () {
   this.wasNew = this.isNew;
 });
