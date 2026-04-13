@@ -13,10 +13,14 @@ const generateOTP = () => {
 const createTransporter = () => {
     return nodemailer.createTransport({
         service: "gmail",
+        pool: true,
         auth: {
             user: process.env.GMAIL_USER,
             pass: process.env.GMAIL_APP_PASSWORD,
         },
+        connectionTimeout: 10000, // 10s
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
     });
 };
 
