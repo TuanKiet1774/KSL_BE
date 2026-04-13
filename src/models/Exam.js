@@ -15,7 +15,12 @@ const examSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Question",
         required: true
-    }]
+    }],
+    topicId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Topic",
+        index: true
+    }
 }, { timestamps: true });
 
 examSchema.index({ createdAt: -1 });

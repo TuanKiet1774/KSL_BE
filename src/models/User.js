@@ -40,7 +40,10 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
       validate: {
         validator: function(v) {
-          return /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])(?!.*\s).+$/.test(v);
+          if (this.isModified('password')) {
+            return /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])(?!.*\s).+$/.test(v);
+          }
+          return true;
         },
         message: "Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt và không chứa khoảng trắng"
       },
