@@ -269,6 +269,11 @@ exports.changePassword = async (req, res) => {
       success: true,
       message: "Đổi mật khẩu thành công!",
     });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
