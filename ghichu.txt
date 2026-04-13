@@ -7,12 +7,21 @@ Topic lọc theo level ("Beginner", "Intermediate", "Advanced")
 Trong Topic ứng với level đó thì sẽ có
 - Word để học ngôn ngữ
 
-Exam chứa các Question để làm đề thi
+Ý tưởng:
+- Câu hỏi trả lời bằng camera (Ví dụ: Hãy tạo ký hiệu ứng với từ sau), Chụp ảnh để nhận diện và chuyển sang văn bản tương ứng và so với đáp án. 
 
-Progress lưu các
+User: Người dùng
+Exam: Chứa các bài thi gồm nhiều Question
+ExamResult: Lịch sử bài kiểm tra của mỗi User
+Topic: Chủ đề bài học
+Question: Chứa các câu hỏi
+Word: Từ vựng
+FavoriteWord: Chứa các Word yêu thích
+LearnedWord: Chứa các Word đã học
+FeedBack: Phản hồi của User
+Progress: Thông số của User
 - Topic đã hoàn thành
 - Word đã học
 - Exam đã làm
+Stastic: Thông số của toàn hệ thống
 
-Ý tưởng:
-- Câu hỏi trả lời bằng camera (Ví dụ: Hãy tạo ký hiệu ứng với từ sau), Chụp ảnh để nhận diện và chuyển sang văn bản tương ứng và so với đáp án. 
