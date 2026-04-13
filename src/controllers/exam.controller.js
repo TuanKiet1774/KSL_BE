@@ -6,7 +6,7 @@ const paginate = require("../utils/pagination");
 
 exports.getExams = async (req, res) => {
   try {
-    const { topicId, page, limit, sortBy, sortOrder, search } = req.query;
+    const { page, limit, sortBy, sortOrder, search } = req.query;
 
     const query = {};
     if (search) {
@@ -106,7 +106,6 @@ exports.submitExamResult = async (req, res) => {
       req.body;
 
     const exam = await Exam.findById(examId);
-    const topicId = exam ? exam.topicId : null;
 
     const examResult = await ExamResult.create({
       userId,
@@ -131,15 +130,6 @@ exports.submitExamResult = async (req, res) => {
       },
       $inc: { "stats.totalExp": totalScore },
     };
-
-    if (topicId && totalScore >= maxScore * 0.8) {
-      progressUpdate.$addToSet = {
-        completedTopics: {
-          topicId: topicId,
-          completedAt: Date.now(),
-        },
-      };
-    }
 
     await Progress.findOneAndUpdate({ userId }, progressUpdate, {
       upsert: true,
