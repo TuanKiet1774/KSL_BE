@@ -538,7 +538,39 @@ exports.requestChangePassword = async (req, res) => {
             });
         }
 
-        const user = await User.findById(req.user.id).select("+password");
+        const userCheck = await User.findById(req.user.id).select("+password");
+
+        if (!userCheck) {
+            return res.status(404).json({
+                success: false,
+                message: "Không tìm thấy tài khoản",
+            });
+        }
+
+        // Xác nhận mật khẩu hiện tại
+        const isMatch = await userCheck.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Mật khẩu hiện tại không chính xác",
+            });
+        }
+
+        // Tạo OTP
+        const otp = generateOTP();
+        const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 phút
+
+        // Cập nhật OTP trực tiếp (bỏ qua validation các trường khác)
+        const user = await User.findOneAndUpdate(
+            { _id: req.user.id },
+            { 
+                $set: { 
+                    otpCode: otp, 
+                    otpExpires: otpExpires 
+                } 
+            },
+            { new: true }
+        );
 
         if (!user) {
             return res.status(404).json({
@@ -547,30 +579,22 @@ exports.requestChangePassword = async (req, res) => {
             });
         }
 
-        // Xác nhận mật khẩu hiện tại
-        const isMatch = await user.comparePassword(currentPassword);
-        if (!isMatch) {
-            return res.status(401).json({
+        try {
+            await sendPasswordResetOTPEmail(user.email, user.fullname, otp);
+            
+            res.status(200).json({
+                success: true,
+                message: "Mã OTP xác nhận đổi mật khẩu đã được gửi đến email của bạn",
+                email: user.email,
+            });
+        } catch (mailError) {
+            console.error("Mail Service Error:", mailError);
+            res.status(500).json({
                 success: false,
-                message: "Mật khẩu hiện tại không chính xác",
+                message: "Không thể kết nối đến máy chủ email. Vui lòng thử lại sau.",
+                error: mailError.message
             });
         }
-
-        // Tạo OTP và gửi email
-        const otp = generateOTP();
-        const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 phút
-
-        user.otpCode = otp;
-        user.otpExpires = otpExpires;
-        await user.save();
-
-        await sendPasswordResetOTPEmail(user.email, user.fullname, otp);
-
-        res.status(200).json({
-            success: true,
-            message: "Mã OTP xác nhận đổi mật khẩu đã được gửi đến email của bạn",
-            email: user.email,
-        });
     } catch (error) {
         res.status(500).json({
             success: false,
