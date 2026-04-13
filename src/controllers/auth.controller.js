@@ -269,6 +269,42 @@ exports.changePassword = async (req, res) => {
       success: true,
       message: "Đổi mật khẩu thành công!",
     });
+  }
+};
+
+// ─── VERIFY PASSWORD: Kiểm tra mật khẩu (authenticated) ─────────────────────
+exports.verifyPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng cung cấp mật khẩu",
+      });
+    }
+
+    const user = await User.findById(req.user.id).select("+password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy người dùng",
+      });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Mật khẩu không chính xác",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Mật khẩu chính xác",
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
