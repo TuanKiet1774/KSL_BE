@@ -41,7 +41,7 @@ exports.getStastics = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: "Lỗi máy chủ nội bộ",
       error: error.message,
     });
   }

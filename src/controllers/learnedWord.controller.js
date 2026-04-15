@@ -22,9 +22,9 @@ exports.getMyLearnedWords = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({
-            success: false,
-            message: "Lỗi Server",
-            error: error.message
+          success: false,
+          message: "Lỗi máy chủ nội bộ",
+          error: error.message,
         });
     }
 };
@@ -71,7 +71,7 @@ exports.getLearnedStats = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Lỗi Server khi tính thống kê",
+            message: "Lỗi máy chủ nội bộ",
             error: error.message
         });
     }

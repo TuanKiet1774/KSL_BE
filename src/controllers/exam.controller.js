@@ -53,7 +53,7 @@ exports.getExamById = async (req, res) => {
     if (!exam) {
       return res
         .status(404)
-        .json({ success: false, message: "Exam (test definition) not found" });
+        .json({ success: false, message: "Kỳ thi không tồn tại" });
     }
 
     res.status(200).json({
@@ -75,7 +75,7 @@ exports.updateExam = async (req, res) => {
     if (!exam) {
       return res
         .status(404)
-        .json({ success: false, message: "Exam not found" });
+        .json({ success: false, message: "Kỳ thi không tồn tại" });
     }
 
     res.status(200).json({ success: true, data: exam });
@@ -90,11 +90,11 @@ exports.deleteExam = async (req, res) => {
     if (!exam) {
       return res
         .status(404)
-        .json({ success: false, message: "Exam not found" });
+        .json({ success: false, message: "Kỳ thi không tồn tại" });
     }
     res
       .status(200)
-      .json({ success: true, message: "Exam deleted successfully" });
+      .json({ success: true, message: "Kỳ thi đã được xóa thành công" });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

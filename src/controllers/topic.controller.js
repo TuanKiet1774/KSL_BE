@@ -76,9 +76,9 @@ exports.getTopics = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: error.message,
+          success: false,
+          message: "Lỗi máy chủ nội bộ",
+          error: error.message,
         });
     }
 };
@@ -104,14 +104,14 @@ exports.getTopicById = async (req, res) => {
     try {
         const topic = await Topic.findById(req.params.id);
         if (!topic) {
-            return res.status(404).json({ success: false, message: "Topic not found" });
+            return res.status(404).json({ success: false, message: "Không tìm thấy chủ đề" });
         }
 
         const userExp = req.user ? req.user.exp : 0;
         if (userExp < (topic.expRequired || 0)) {
             return res.status(403).json({
                 success: false,
-                message: "You need more EXP to unlock this topic",
+                message: "Bạn cần thêm EXP để mở khóa chủ đề này",
                 requiredExp: topic.expRequired,
                 currentExp: userExp
             });
@@ -133,7 +133,7 @@ exports.updateTopic = async (req, res) => {
         });
 
         if (!topic) {
-            return res.status(404).json({ success: false, message: "Topic not found" });
+            return res.status(404).json({ success: false, message: "Không tìm thấy chủ đề" });
         }
 
         res.status(200).json({ success: true, data: topic });
@@ -146,9 +146,9 @@ exports.deleteTopic = async (req, res) => {
     try {
         const topic = await Topic.findByIdAndDelete(req.params.id);
         if (!topic) {
-            return res.status(404).json({ success: false, message: "Topic not found" });
+            return res.status(404).json({ success: false, message: "Không tìm thấy chủ đề" });
         }
-        res.status(200).json({ success: true, message: "Topic deleted successfully" });
+        res.status(200).json({ success: true, message: "Xoá chủ đề thành công" });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }

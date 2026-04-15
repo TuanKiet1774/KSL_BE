@@ -2,111 +2,117 @@ const Question = require("../models/Question");
 const paginate = require("../utils/pagination");
 
 exports.getQuestions = async (req, res) => {
-    try {
-        const {
-            question,
-            topicId,
-            type,
-            difficulty,
-            page,
-            limit,
-            sortBy,
-            sortOrder,
-            search,
-        } = req.query;
+  try {
+    const {
+      question,
+      topicId,
+      type,
+      difficulty,
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+      search,
+    } = req.query;
 
-        const query = {};
+    const query = {};
 
-        if (search) {
-            query.question = { $regex: search, $options: "i" };
-        }
-        if (topicId) {
-            query.topicId = topicId;
-        }
-        if (type) {
-            query.type = type;
-        }
-        if (difficulty) {
-            query.difficulty = difficulty;
-        }
-        if (question) {
-            query.question = { $regex: question, $options: "i" };
-        }
-        
-        const result = await paginate(Question, query, {
-            page,
-            limit,
-            sortBy: sortBy || "createdAt",
-            sortOrder: sortOrder || "desc",
-            populate: "topicId",
-        });
-
-        res.status(200).json({
-            success: true,
-            count: result.data.length,
-            ...result,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: error.message,
-        });
+    if (search) {
+      query.question = { $regex: search, $options: "i" };
     }
+    if (topicId) {
+      query.topicId = topicId;
+    }
+    if (type) {
+      query.type = type;
+    }
+    if (difficulty) {
+      query.difficulty = difficulty;
+    }
+    if (question) {
+      query.question = { $regex: question, $options: "i" };
+    }
+
+    const result = await paginate(Question, query, {
+      page,
+      limit,
+      sortBy: sortBy || "createdAt",
+      sortOrder: sortOrder || "desc",
+      populate: "topicId",
+    });
+
+    res.status(200).json({
+      success: true,
+      count: result.data.length,
+      ...result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Lỗi máy chủ nội bộ",
+      error: error.message,
+    });
+  }
 };
 
 exports.createQuestion = async (req, res) => {
-    try {
-        const question = await Question.create(req.body);
-        res.status(201).json({
-            success: true,
-            data: question,
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message,
-        });
-    }
+  try {
+    const question = await Question.create(req.body);
+    res.status(201).json({
+      success: true,
+      data: question,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 exports.getQuestionById = async (req, res) => {
-    try {
-        const question = await Question.findById(req.params.id).populate("topicId");
-        if (!question) {
-            return res.status(404).json({ success: false, message: "Question not found" });
-        }
-        res.status(200).json({ success: true, data: question });
-    } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+  try {
+    const question = await Question.findById(req.params.id).populate("topicId");
+    if (!question) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy câu hỏi" });
     }
+    res.status(200).json({ success: true, data: question });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 };
 
 exports.updateQuestion = async (req, res) => {
-    try {
-        const question = await Question.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true,
-        });
+  try {
+    const question = await Question.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-        if (!question) {
-            return res.status(404).json({ success: false, message: "Question not found" });
-        }
-
-        res.status(200).json({ success: true, data: question });
-    } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+    if (!question) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy câu hỏi" });
     }
+
+    res.status(200).json({ success: true, data: question });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 };
 
 exports.deleteQuestion = async (req, res) => {
-    try {
-        const question = await Question.findByIdAndDelete(req.params.id);
-        if (!question) {
-            return res.status(404).json({ success: false, message: "Question not found" });
-        }
-        res.status(200).json({ success: true, message: "Question deleted successfully" });
-    } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+  try {
+    const question = await Question.findByIdAndDelete(req.params.id);
+    if (!question) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy câu hỏi" });
     }
+    res.status(200).json({ success: true, message: "Xoá câu hỏi thành công" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 };

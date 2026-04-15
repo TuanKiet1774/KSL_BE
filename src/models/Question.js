@@ -69,7 +69,7 @@ const questionSchema = new mongoose.Schema(
         message: (props) => {
           const type = props.instance ? props.instance.type : "default";
           const minOptions = type === "multiple-choice" ? 2 : 1;
-          return `A ${type} question must have at least ${minOptions} options and exactly one correct answer.`;
+          return `Loại ${type} câu hỏi này phải có ít nhất ${minOptions} đáp án và chỉ có một đáp án đúng.`;
         },
       },
     },

@@ -33,7 +33,7 @@ exports.getFeedBacks = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Internal Server Error",
+            message: "Lỗi máy chủ nội bộ",
             error: error.message,
         });
     }
@@ -43,7 +43,7 @@ exports.getFeedBackById = async (req, res) => {
     try {
         const feedback = await FeedBack.findById(req.params.id).populate("userId", "fullname username avatar");
         if (!feedback) {
-            return res.status(404).json({ success: false, message: "Feedback not found" });
+            return res.status(404).json({ success: false, message: "Phản hồi không tồn tại" });
         }
         res.status(200).json({ success: true, data: feedback });
     } catch (error) {
@@ -55,9 +55,9 @@ exports.deleteFeedBack = async (req, res) => {
     try {
         const feedback = await FeedBack.findByIdAndDelete(req.params.id);
         if (!feedback) {
-            return res.status(404).json({ success: false, message: "Feedback not found" });
+            return res.status(404).json({ success: false, message: "Phản hồi không tồn tại" });
         }
-        res.status(200).json({ success: true, message: "Feedback deleted successfully" });
+        res.status(200).json({ success: true, message: "Đã xoá phản hồi thành công" });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }

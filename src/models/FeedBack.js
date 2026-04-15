@@ -28,7 +28,6 @@ const feedBackSchema = new mongoose.Schema(
 feedBackSchema.index({ rating: 1 });
 feedBackSchema.index({ createdAt: -1 });
 
-// Middleware to track if it's a new document
 feedBackSchema.pre("save", async function () {
   this.wasNew = this.isNew;
 });

@@ -1,17 +1,11 @@
 const FavoriteWord = require("../models/FavoriteWord");
 const Word = require("../models/Word");
 
-/**
- * @desc    Thêm từ vựng vào danh sách yêu thích/cần lưu ý
- * @route   POST /api/favorite-words
- * @access  Private
- */
 exports.addToFavorite = async (req, res) => {
     try {
         const { wordId, note, category } = req.body;
         const userId = req.user._id;
 
-        // Kiểm tra xem từ vựng có tồn tại không
         const word = await Word.findById(wordId);
         if (!word) {
             return res.status(404).json({
@@ -20,7 +14,6 @@ exports.addToFavorite = async (req, res) => {
             });
         }
 
-        // Kiểm tra xem đã lưu từ này chưa
         const existingFavorite = await FavoriteWord.findOne({ userId, wordId });
         if (existingFavorite) {
             return res.status(400).json({
@@ -48,11 +41,6 @@ exports.addToFavorite = async (req, res) => {
     }
 };
 
-/**
- * @desc    Lấy danh sách từ vựng yêu thích của người dùng hiện tại
- * @route   GET /api/favorite-words
- * @access  Private
- */
 exports.getMyFavorites = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -63,7 +51,6 @@ exports.getMyFavorites = async (req, res) => {
             query.category = category;
         }
 
-        // Populate thông tin chi tiết của từ vựng
         const favorites = await FavoriteWord.find(query)
             .populate("wordId")
             .sort("-createdAt");
@@ -82,11 +69,6 @@ exports.getMyFavorites = async (req, res) => {
     }
 };
 
-/**
- * @desc    Cập nhật thông tin (ghi chú, phân loại) cho từ đã lưu
- * @route   PUT /api/favorite-words/:id
- * @access  Private
- */
 exports.updateFavorite = async (req, res) => {
     try {
         const { note, category } = req.body;
@@ -126,11 +108,6 @@ exports.updateFavorite = async (req, res) => {
     }
 };
 
-/**
- * @desc    Xóa từ khỏi danh sách yêu thích
- * @route   DELETE /api/favorite-words/:id
- * @access  Private
- */
 exports.removeFromFavorite = async (req, res) => {
     try {
         const favorite = await FavoriteWord.findById(req.params.id);

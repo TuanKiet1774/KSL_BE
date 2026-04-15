@@ -309,14 +309,14 @@ exports.refreshTokenMobile = async (req, res) => {
 
     const decoded = jwt.verify(
       refreshToken,
-      process.env.JWT_REFRESH_SECRET || "refresh_secret_ksl_2026",
+      process.env.JWT_REFRESH_SECRET,
     );
     const user = await User.findById(decoded.id);
 
     if (!user || user.mobileRefreshToken !== refreshToken) {
       return res.status(401).json({
         success: false,
-        message: "Refresh token invalid hoặc đã bị đăng xuất từ thiết bị khác",
+        message: "Refresh token không hợp lệ hoặc đã bị đăng xuất từ thiết bị khác",
       });
     }
 
@@ -337,12 +337,11 @@ exports.refreshTokenMobile = async (req, res) => {
       .status(401)
       .json({
         success: false,
-        message: "Refresh token expired hoặc không hợp lệ",
+        message: "Refresh token đã hết hạn hoặc không hợp lệ",
       });
   }
 };
 
-// ─── CHANGE PASSWORD: Đổi mật khẩu (authenticated) ──────────────────────────
 exports.changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -426,7 +425,6 @@ exports.verifyPassword = async (req, res) => {
   }
 };
 
-// ─── VERIFY IDENTITY: Kiểm tra username và email (authenticated) ─────────────
 exports.verifyIdentity = async (req, res) => {
   try {
     const { username, email } = req.body;
