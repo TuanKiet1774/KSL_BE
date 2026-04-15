@@ -105,6 +105,14 @@ const userSchema = new mongoose.Schema(
         type: String,
         default: null,
     },
+    mobileSessionToken: {
+      type: String,
+      default: null,
+    },
+    mobileRefreshToken: {
+        type: String,
+        default: null,
+    },
     gender: {
         type: String,
         enum: ["Nam", "Nữ"],

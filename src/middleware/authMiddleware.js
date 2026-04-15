@@ -30,8 +30,11 @@ exports.protect = async (req, res, next) => {
             });
         }
 
-        // Kiểm tra xem token này có phải là phiên đăng nhập mới nhất không
-        if (req.user.currentSessionToken && req.user.currentSessionToken !== token) {
+        // Kiểm tra xem token có thuộc phiên admin web hoặc phiên mobile không
+        const isAdminSession = req.user.currentSessionToken && req.user.currentSessionToken === token;
+        const isMobileSession = req.user.mobileSessionToken && req.user.mobileSessionToken === token;
+
+        if (!isAdminSession && !isMobileSession) {
             return res.status(401).json({
                 success: false,
                 message: "Tài khoản của bạn đang đăng nhập trên thiết bị khác",

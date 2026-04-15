@@ -233,6 +233,115 @@ exports.refreshToken = async (req, res) => {
   }
 };
 
+// ─── LOGIN MOBILE: Đăng nhập trên ứng dụng di động (mọi role, kể cả admin) ───
+exports.loginMobile = async (req, res) => {
+  try {
+    const { emailOrUsername, password } = req.body;
+
+    if (!emailOrUsername || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide email/username and password",
+      });
+    }
+
+    const user = await User.findOne({
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+    }).select("+password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Thông tin đăng nhập chưa chính xác",
+      });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Thông tin đăng nhập chưa chính xác",
+      });
+    }
+
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    // Lưu phiên đăng nhập mobile (tách biệt với phiên admin web)
+    user.mobileSessionToken = accessToken;
+    user.mobileRefreshToken = refreshToken;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      data: {
+        _id: user._id,
+        username: user.username,
+        fullname: user.fullname,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        level: user.level,
+        exp: user.exp,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+// ─── REFRESH TOKEN MOBILE ──────────────────────────────────────────────────────
+exports.refreshTokenMobile = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Refresh token is required" });
+    }
+
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET || "refresh_secret_ksl_2026",
+    );
+    const user = await User.findById(decoded.id);
+
+    if (!user || user.mobileRefreshToken !== refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token invalid hoặc đã bị đăng xuất từ thiết bị khác",
+      });
+    }
+
+    const newAccessToken = generateAccessToken(user._id);
+    const newRefreshToken = generateRefreshToken(user._id);
+
+    user.mobileSessionToken = newAccessToken;
+    user.mobileRefreshToken = newRefreshToken;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
+  } catch (error) {
+    res
+      .status(401)
+      .json({
+        success: false,
+        message: "Refresh token expired hoặc không hợp lệ",
+      });
+  }
+};
+
 // ─── CHANGE PASSWORD: Đổi mật khẩu (authenticated) ──────────────────────────
 exports.changePassword = async (req, res) => {
   try {
