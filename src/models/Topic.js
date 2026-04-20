@@ -61,30 +61,28 @@ topicSchema.post("save", async function (doc) {
 topicSchema.post("findOneAndDelete", async function (doc) {
     if (doc) {
         await updateStastic("topicCount", -1);
-        
+
         const topicId = doc._id;
-        
+
         try {
             const words = await mongoose.model("Word").find({ topicId });
             const wordIds = words.map(w => w._id);
+
             if (wordIds.length > 0) {
                 await mongoose.model("Word").deleteMany({ topicId });
                 await updateStastic("wordCount", -wordIds.length);
+                // Xóa LearnedWord của các từ thuộc topic này
+                await mongoose.model("LearnedWord").deleteMany({ topicId });
             }
-            
+
             await mongoose.model("Question").deleteMany({ topicId });
+
+            // Xóa topicProgress liên quan trong Progress
             await mongoose.model("Progress").updateMany(
-                { "completedTopics.topicId": topicId },
-                { $pull: { completedTopics: { topicId: topicId } } }
+                { "topicProgress.topicId": topicId },
+                { $pull: { topicProgress: { topicId: topicId } } }
             );
-            
-            if (wordIds.length > 0) {
-                await mongoose.model("Progress").updateMany(
-                    { "learnedWords.wordId": { $in: wordIds } },
-                    { $pull: { learnedWords: { wordId: { $in: wordIds } } } }
-                );
-            }
-            
+
             console.log(`Cascade delete completed for topic: ${doc.name}`);
         } catch (err) {
             console.error("Error in topic cascade delete:", err);

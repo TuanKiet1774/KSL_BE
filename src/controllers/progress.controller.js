@@ -6,10 +6,7 @@ const LearnedWord = require("../models/LearnedWord");
 exports.getProgress = async (req, res) => {
     try {
         let progress = await Progress.findOne({ userId: req.params.userId })
-            .populate("completedTopics.topicId")
-            .populate("learnedWords.wordId")
-            .populate("completedExams.examId")
-            .populate("completedExams.resultId");
+            .populate("topicProgress.topicId");
 
         if (!progress) {
             progress = await Progress.create({ userId: req.params.userId });
@@ -24,23 +21,10 @@ exports.getProgress = async (req, res) => {
     }
 };
 
-exports.completeTopic = async (req, res) => {
-    try {
-        const { userId, topicId } = req.body;
-        const progress = await Progress.findOneAndUpdate(
-            { userId },
-            { $addToSet: { completedTopics: { topicId, completedAt: Date.now() } } },
-            { new: true, upsert: true }
-        );
-        res.status(200).json({ success: true, data: progress });
-    } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
-    }
-};
 
 exports.learnWord = async (req, res) => {
     try {
-        const userId = req.user._id; 
+        const userId = req.user._id;
         const { wordId } = req.body;
 
         const word = await Word.findById(wordId);
@@ -58,6 +42,7 @@ exports.learnWord = async (req, res) => {
 
         const expGain = word.exp || 5;
 
+        // Tạo bản ghi LearnedWord — hook post("save") sẽ tự cập nhật topicProgress
         await LearnedWord.create({
             userId,
             wordId,
@@ -66,26 +51,21 @@ exports.learnWord = async (req, res) => {
             learnedAt: Date.now()
         });
 
-        await User.findByIdAndUpdate(userId, {
-            $inc: { exp: expGain }
-        });
+        await User.findByIdAndUpdate(userId, { $inc: { exp: expGain } });
 
-        const progress = await Progress.findOneAndUpdate(
+        // Cập nhật totalExp trong Progress stats
+        await Progress.findOneAndUpdate(
             { userId },
-            {
-                $addToSet: { learnedWords: { wordId, learnedAt: Date.now() } },
-                $inc: { "stats.totalExp": expGain },
-                $set: { "stats.lastActivity": Date.now() }
-            },
-            { new: true, upsert: true }
+            { $inc: { "stats.totalExp": expGain } },
+            { upsert: true }
         );
 
         res.status(200).json({
             success: true,
-            message: `Học thành công! +${expGain} EXP`,
-            data: progress
+            message: `Học thành công! +${expGain} EXP`
         });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
 };
+

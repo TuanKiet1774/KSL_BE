@@ -102,11 +102,11 @@ exports.deleteExam = async (req, res) => {
 
 exports.submitExamResult = async (req, res) => {
   try {
-    const { userId, examId, results, totalScore, maxScore, timeSpent } =
-      req.body;
+    const { userId, examId, results, totalScore, maxScore, timeSpent } = req.body;
 
-    const exam = await Exam.findById(examId);
+    await Exam.findById(examId);
 
+    // Tạo ExamResult — hook post("save") sẽ tự tính lại averageTestScore trong Progress
     const examResult = await ExamResult.create({
       userId,
       examId,
@@ -116,33 +116,25 @@ exports.submitExamResult = async (req, res) => {
       timeSpent,
       status: "completed",
     });
-    await User.findByIdAndUpdate(userId, {
-      $inc: { exp: totalScore },
-    });
-    const progressUpdate = {
-      $push: {
-        completedExams: {
-          examId: examId,
-          resultId: examResult._id,
-          score: totalScore,
-          completedAt: Date.now(),
-        },
+
+    await User.findByIdAndUpdate(userId, { $inc: { exp: totalScore } });
+
+    // Cập nhật totalExp trong Progress stats
+    await Progress.findOneAndUpdate(
+      { userId },
+      {
+        $inc: { "stats.totalExp": totalScore },
+        $set: { "stats.lastActivity": Date.now() }
       },
-      $inc: { "stats.totalExp": totalScore },
-    };
+      { upsert: true }
+    );
 
-    await Progress.findOneAndUpdate({ userId }, progressUpdate, {
-      upsert: true,
-    });
-
-    res.status(201).json({
-      success: true,
-      data: examResult,
-    });
+    res.status(201).json({ success: true, data: examResult });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
 
 exports.getUserResults = async (req, res) => {
   try {

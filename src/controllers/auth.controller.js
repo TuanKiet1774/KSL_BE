@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Progress = require("../models/Progress");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 // Removed emailService imports
@@ -119,6 +120,18 @@ exports.login = async (req, res) => {
     user.currentSessionToken = accessToken;
     user.refreshToken = refreshToken;
     await user.save();
+
+    // Ghi nhận phiên đăng nhập web vào accessHistory
+    await Progress.findOneAndUpdate(
+      { userId: user._id },
+      {
+        $push: {
+          accessHistory: { sessionStart: Date.now(), activity: "login_web" }
+        },
+        $set: { "stats.lastActivity": Date.now() }
+      },
+      { upsert: true }
+    );
 
     res.status(200).json({
       success: true,
@@ -271,6 +284,18 @@ exports.loginMobile = async (req, res) => {
     user.mobileSessionToken = accessToken;
     user.mobileRefreshToken = refreshToken;
     await user.save();
+
+    // Ghi nhận phiên đăng nhập mobile vào accessHistory
+    await Progress.findOneAndUpdate(
+      { userId: user._id },
+      {
+        $push: {
+          accessHistory: { sessionStart: Date.now(), activity: "login_mobile" }
+        },
+        $set: { "stats.lastActivity": Date.now() }
+      },
+      { upsert: true }
+    );
 
     res.status(200).json({
       success: true,
