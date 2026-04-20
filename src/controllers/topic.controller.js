@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Topic = require("../models/Topic");
+const Word = require("../models/Word");
 const Progress = require("../models/Progress");
 const paginate = require("../utils/pagination");
 
@@ -45,8 +46,10 @@ exports.getTopics = async (req, res) => {
         let completedTopicIds = [];
         if (req.user) {
             const progress = await Progress.findOne({ userId: req.user._id });
-            if (progress) {
-                completedTopicIds = progress.completedTopics.map(t => t.topicId.toString());
+            if (progress && progress.topicProgress) {
+                completedTopicIds = progress.topicProgress
+                    .filter(t => t.percentage === 100)
+                    .map(t => t.topicId.toString());
             }
         }
 
@@ -54,7 +57,7 @@ exports.getTopics = async (req, res) => {
             const topicObj = topic.toObject();
             const expLocked = userExp < (topic.expRequired || 0);
             if (!topic.totalWord || topic.totalWord === 0) {
-                const actualCount = await mongoose.model("Word").countDocuments({ topicId: topic._id });
+                const actualCount = await Word.countDocuments({ topicId: topic._id });
                 if (actualCount > 0) {
                     topicObj.totalWord = actualCount;
                     await Topic.findByIdAndUpdate(topic._id, { totalWord: actualCount });
