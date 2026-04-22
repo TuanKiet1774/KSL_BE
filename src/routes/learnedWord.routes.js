@@ -1,8 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { getMyLearnedWords, getLearnedStats } = require("../controllers/learnedWord.controller");
+const { getMyLearnedWords, getLearnedStats, learnWord } = require("../controllers/learnedWord.controller");
 
-router.get("/", getMyLearnedWords);
+router.route("/")
+    .get(getMyLearnedWords)
+    .post(learnWord);
+
 router.get("/stats", getLearnedStats);
 
 module.exports = router;
