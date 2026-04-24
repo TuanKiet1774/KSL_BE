@@ -1,4 +1,5 @@
 const LearnedWord = require("../models/LearnedWord");
+const User = require("../models/User");
 
 exports.getMyLearnedWords = async (req, res) => {
     try {
@@ -106,9 +107,16 @@ exports.learnWord = async (req, res) => {
             expGained: expGained || 0
         });
 
+        // Cộng dồn EXP cho người dùng
+        if (expGained && expGained > 0) {
+            await User.findByIdAndUpdate(userId, {
+                $inc: { exp: expGained }
+            });
+        }
+
         res.status(201).json({
             success: true,
-            message: "Đã đánh dấu từ vựng là đã học",
+            message: "Đã đánh dấu từ vựng là đã học và nhận được EXP",
             data: learnedWord
         });
     } catch (error) {
@@ -131,6 +139,13 @@ exports.deleteLearnedWord = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: "Không tìm thấy từ vựng đã học hoặc bạn không có quyền xóa"
+            });
+        }
+
+        // Trừ EXP khi xóa từ đã học
+        if (learnedWord.expGained > 0) {
+            await User.findByIdAndUpdate(userId, {
+                $inc: { exp: -learnedWord.expGained }
             });
         }
 
@@ -159,15 +174,55 @@ exports.deleteBulkLearnedWords = async (req, res) => {
             });
         }
 
+        // Tìm các từ sắp xóa để tính tổng EXP cần trừ
+        const wordsToDelete = await LearnedWord.find({
+            _id: { $in: ids },
+            userId: userId
+        });
+
+        const totalExpToSubtract = wordsToDelete.reduce((sum, word) => sum + (word.expGained || 0), 0);
+
         const result = await LearnedWord.deleteMany({
             _id: { $in: ids },
             userId: userId
         });
 
+        // Trừ tổng EXP cho người dùng
+        if (totalExpToSubtract > 0) {
+            await User.findByIdAndUpdate(userId, {
+                $inc: { exp: -totalExpToSubtract }
+            });
+        }
+
         res.status(200).json({
             success: true,
             message: `Đã xóa ${result.deletedCount} từ vựng đã học`,
             count: result.deletedCount
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Lỗi máy chủ nội bộ",
+            error: error.message
+        });
+    }
+};
+
+exports.syncExp = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        // Tính tổng EXP từ tất cả từ đã học
+        const learnedWords = await LearnedWord.find({ userId });
+        const totalExp = learnedWords.reduce((sum, word) => sum + (word.expGained || 0), 0);
+
+        // Cập nhật vào User
+        await User.findByIdAndUpdate(userId, { exp: totalExp });
+
+        res.status(200).json({
+            success: true,
+            message: "Đã đồng bộ điểm EXP thành công",
+            totalExp: totalExp
         });
     } catch (error) {
         res.status(500).json({
