@@ -4,21 +4,30 @@ const User = require("../models/User");
 exports.getMyLearnedWords = async (req, res) => {
     try {
         const userId = req.user._id;
-        const { topicId, sortBy, sortOrder } = req.query;
+        const { topicId, sortBy, sortOrder, page = 1, limit = 10 } = req.query;
 
         const query = { userId };
         if (topicId) {
             query.topicId = topicId;
         }
 
+        const skip = (page - 1) * limit;
+
         const learnedWords = await LearnedWord.find(query)
             .populate("wordId")
             .populate("topicId", "name")
-            .sort({ [sortBy || "learnedAt"]: sortOrder === "asc" ? 1 : -1 });
+            .sort({ [sortBy || "learnedAt"]: sortOrder === "asc" ? 1 : -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        const total = await LearnedWord.countDocuments(query);
 
         res.status(200).json({
             success: true,
             count: learnedWords.length,
+            total,
+            page: parseInt(page),
+            totalPages: Math.ceil(total / limit),
             data: learnedWords
         });
     } catch (error) {
