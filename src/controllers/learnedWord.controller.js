@@ -119,3 +119,61 @@ exports.learnWord = async (req, res) => {
         });
     }
 };
+
+exports.deleteLearnedWord = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { id } = req.params;
+
+        const learnedWord = await LearnedWord.findOneAndDelete({ _id: id, userId });
+
+        if (!learnedWord) {
+            return res.status(404).json({
+                success: false,
+                message: "Không tìm thấy từ vựng đã học hoặc bạn không có quyền xóa"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Đã xóa từ vựng khỏi danh sách đã học"
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Lỗi máy chủ nội bộ",
+            error: error.message
+        });
+    }
+};
+
+exports.deleteBulkLearnedWords = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { ids } = req.body;
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Danh sách ID không hợp lệ"
+            });
+        }
+
+        const result = await LearnedWord.deleteMany({
+            _id: { $in: ids },
+            userId: userId
+        });
+
+        res.status(200).json({
+            success: true,
+            message: `Đã xóa ${result.deletedCount} từ vựng đã học`,
+            count: result.deletedCount
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Lỗi máy chủ nội bộ",
+            error: error.message
+        });
+    }
+};
