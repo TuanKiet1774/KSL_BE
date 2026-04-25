@@ -56,12 +56,12 @@ exports.getTopics = async (req, res) => {
         const topicsWithLockStatus = await Promise.all(result.data.map(async (topic) => {
             const topicObj = topic.toObject();
             const expLocked = userExp < (topic.expRequired || 0);
-            if (!topic.totalWord || topic.totalWord === 0) {
-                const actualCount = await Word.countDocuments({ topicId: topic._id });
-                if (actualCount > 0) {
-                    topicObj.totalWord = actualCount;
-                    await Topic.findByIdAndUpdate(topic._id, { totalWord: actualCount });
-                }
+
+            // Luôn đồng bộ totalWord từ số từ thực tế để tránh lệch dữ liệu
+            const actualCount = await Word.countDocuments({ topicId: topic._id });
+            if (actualCount !== topic.totalWord) {
+                topicObj.totalWord = actualCount;
+                await Topic.findByIdAndUpdate(topic._id, { totalWord: actualCount });
             }
 
             return {
