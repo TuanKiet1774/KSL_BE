@@ -34,7 +34,7 @@ const questionSchema = new mongoose.Schema(
       },
       type: {
         type: String,
-        enum: ["image", "gif", "video", "webp" ,"none"],
+        enum: ["image", "gif", "video", "none"],
         default: "none",
       },
     },

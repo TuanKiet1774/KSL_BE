@@ -27,7 +27,7 @@ const wordSchema = new mongoose.Schema({
         },
         type: {
             type: String,
-            enum: ["image", "gif", "video", "webp"],
+            enum: ["image", "gif", "video"],
             default: "image",
         },
     },
