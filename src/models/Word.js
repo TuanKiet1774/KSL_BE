@@ -32,6 +32,11 @@ const wordSchema = new mongoose.Schema({
         },
     },
 
+    youtubeLink: {
+        type: String,
+        default: "",
+    },
+
     exp: {
         type: Number,
         default: 5,
