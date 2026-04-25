@@ -55,7 +55,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       validate: {
         validator: function(v) {
-          if (!v) return true; // Cho phép trống
+          if (!v) return true; 
           return /^[0-9]{9,11}$/.test(v);
         },
         message: "Số điện thoại phải có từ 9 đến 11 chữ số"

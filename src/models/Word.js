@@ -27,14 +27,14 @@ const wordSchema = new mongoose.Schema({
         },
         type: {
             type: String,
-            enum: ["image", "gif", "video"],
+            enum: ["image", "gif", "video", "webp"],
             default: "image",
         },
     },
 
     exp: {
         type: Number,
-        default: 5, // Mặc định mỗi từ mới cho 5 exp
+        default: 5,
     },
 
     topicId: {

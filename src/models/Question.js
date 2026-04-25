@@ -34,7 +34,7 @@ const questionSchema = new mongoose.Schema(
       },
       type: {
         type: String,
-        enum: ["image", "gif", "video", "none"],
+        enum: ["image", "gif", "video", "webp" ,"none"],
         default: "none",
       },
     },
@@ -46,7 +46,7 @@ const questionSchema = new mongoose.Schema(
             url: { type: String, default: "" },
             type: {
               type: String,
-              enum: ["image", "gif", "video", "none"],
+              enum: ["image", "gif", "video", "webp" ,"none"],
               default: "none",
             },
           },
@@ -84,7 +84,7 @@ const questionSchema = new mongoose.Schema(
       default: 1,
     },
     time: {
-      type: Number, // In seconds
+      type: Number, 
       default: 30,
     }
   },

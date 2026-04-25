@@ -71,13 +71,10 @@ topicSchema.post("findOneAndDelete", async function (doc) {
             if (wordIds.length > 0) {
                 await mongoose.model("Word").deleteMany({ topicId });
                 await updateStastic("wordCount", -wordIds.length);
-                // Xóa LearnedWord của các từ thuộc topic này
                 await mongoose.model("LearnedWord").deleteMany({ topicId });
             }
 
             await mongoose.model("Question").deleteMany({ topicId });
-
-            // Xóa topicProgress liên quan trong Progress
             await mongoose.model("Progress").updateMany(
                 { "topicProgress.topicId": topicId },
                 { $pull: { topicProgress: { topicId: topicId } } }
