@@ -5,8 +5,8 @@ const bcrypt = require("bcryptjs");
 // Removed emailService imports
 
 const generateAccessToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || "15m",
+  return jwt.sign({ id }, process.env.JWT_SECRET || "access_secret_ksl_2026", {
+    expiresIn: process.env.JWT_EXPIRE || "30d",
   });
 };
 
@@ -154,13 +154,37 @@ exports.login = async (req, res) => {
   }
 };
 
-// ─── GET PROFILE ───────────────────────────────────────────────────────────────
+// ─── GET PROFILE ─────────────────────────────────────────────────────────────────────────
+const getSessionToken = (req, user) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  // Determine if this is a mobile or web session
+  if (user.mobileSessionToken && user.mobileSessionToken === token) {
+    return { accessToken: user.mobileSessionToken, refreshToken: user.mobileRefreshToken };
+  }
+  return { accessToken: user.currentSessionToken, refreshToken: user.refreshToken };
+};
+
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
+    const tokens = getSessionToken(req, user);
     res.status(200).json({
       success: true,
-      data: user,
+      data: {
+        _id: user._id,
+        username: user.username,
+        fullname: user.fullname,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        phone: user.phone,
+        birthday: user.birthday,
+        address: user.address,
+        gender: user.gender,
+        exp: user.exp,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      },
     });
   } catch (error) {
     res.status(500).json({
@@ -227,9 +251,10 @@ exports.refreshToken = async (req, res) => {
     const newAccessToken = generateAccessToken(user._id);
     const newRefreshToken = generateRefreshToken(user._id);
 
-    user.currentSessionToken = newAccessToken;
-    user.refreshToken = newRefreshToken;
-    await user.save();
+    await User.findByIdAndUpdate(user._id, {
+      currentSessionToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
 
     res.status(200).json({
       success: true,
@@ -281,9 +306,11 @@ exports.loginMobile = async (req, res) => {
     const refreshToken = generateRefreshToken(user._id);
 
     // Lưu phiên đăng nhập mobile (tách biệt với phiên admin web)
-    user.mobileSessionToken = accessToken;
-    user.mobileRefreshToken = refreshToken;
-    await user.save();
+    // Dùng findByIdAndUpdate để tránh chạy lại validators (nhất là password validator)
+    await User.findByIdAndUpdate(user._id, {
+      mobileSessionToken: accessToken,
+      mobileRefreshToken: refreshToken,
+    });
 
     // Ghi nhận phiên đăng nhập mobile vào accessHistory
     await Progress.findOneAndUpdate(
@@ -353,9 +380,10 @@ exports.refreshTokenMobile = async (req, res) => {
     const newAccessToken = generateAccessToken(user._id);
     const newRefreshToken = generateRefreshToken(user._id);
 
-    user.mobileSessionToken = newAccessToken;
-    user.mobileRefreshToken = newRefreshToken;
-    await user.save();
+    await User.findByIdAndUpdate(user._id, {
+      mobileSessionToken: newAccessToken,
+      mobileRefreshToken: newRefreshToken,
+    });
 
     res.status(200).json({
       success: true,
