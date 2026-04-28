@@ -28,8 +28,9 @@ exports.getMyProgress = async (req, res) => {
             needsSave = true;
         }
 
+        const mongoose = require("mongoose");
         const actualTopicStats = await LearnedWord.aggregate([
-            { $match: { userId: progress.userId } },
+            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
             { $group: { _id: "$topicId", count: { $sum: 1 } } }
         ]);
 

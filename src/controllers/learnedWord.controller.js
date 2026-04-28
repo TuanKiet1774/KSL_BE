@@ -6,35 +6,48 @@ const mongoose = require("mongoose");
 
 async function recalculateProgress(userId, topicId) {
     try {
-        const learnedWordsCount = await LearnedWord.countDocuments({ userId, topicId });
-        const topic = await mongoose.model("Topic").findById(topicId);
-        const totalWords = topic ? topic.totalWord : 0;
-        const percentage = totalWords > 0 ? (learnedWordsCount / totalWords) * 100 : 0;
-        const totalWordsLearned = await LearnedWord.countDocuments({ userId });
-        const user = await User.findById(userId);
+        const uId = new mongoose.Types.ObjectId(userId);
+        const tIdObj = new mongoose.Types.ObjectId(topicId);
+
+        const learnedWordsCount = await LearnedWord.countDocuments({ userId: uId, topicId: tIdObj });
+        const totalWordsInTopic = await mongoose.model("Word").countDocuments({ topicId: tIdObj });
+        
+        const percentage = totalWordsInTopic > 0 ? (learnedWordsCount / totalWordsInTopic) * 100 : 0;
+        const totalWordsLearned = await LearnedWord.countDocuments({ userId: uId });
+        
+        const user = await User.findById(uId);
         const totalExp = user ? user.exp : 0;
 
         const progress = await Progress.findOneAndUpdate(
-            { userId },
+            { userId: uId },
             { $set: { "stats.totalWordsLearned": totalWordsLearned, "stats.totalExp": totalExp } },
             { upsert: true, new: true }
         );
 
         const topicIndex = progress.topicProgress.findIndex(
-            tp => tp.topicId.toString() === topicId.toString()
+            tp => tp.topicId && tp.topicId.toString() === topicId.toString()
         );
 
         if (topicIndex > -1) {
-            progress.topicProgress[topicIndex].learnedWordsCount = learnedWordsCount;
-            progress.topicProgress[topicIndex].percentage = percentage;
-            progress.topicProgress[topicIndex].lastUpdated = Date.now();
+            if (learnedWordsCount > 0) {
+                progress.topicProgress[topicIndex].learnedWordsCount = learnedWordsCount;
+                progress.topicProgress[topicIndex].percentage = percentage;
+                progress.topicProgress[topicIndex].lastUpdated = Date.now();
+            } else {
+                progress.topicProgress.splice(topicIndex, 1);
+            }
         } else if (learnedWordsCount > 0) {
-            progress.topicProgress.push({ topicId, learnedWordsCount, percentage, lastUpdated: Date.now() });
+            progress.topicProgress.push({ 
+                topicId: tIdObj, 
+                learnedWordsCount, 
+                percentage, 
+                lastUpdated: Date.now() 
+            });
         }
 
         await progress.save();
     } catch (err) {
-        console.error("Error recalculating progress after delete:", err);
+        console.error("Error recalculating progress:", err);
     }
 }
 
