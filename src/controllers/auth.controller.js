@@ -240,7 +240,7 @@ exports.refreshToken = async (req, res) => {
     await User.findByIdAndUpdate(user._id, {
       currentSessionToken: newAccessToken,
       refreshToken: newRefreshToken,
-    });
+    }, { returnDocument: 'after' });
 
     res.status(200).json({
       success: true,
@@ -293,7 +293,7 @@ exports.loginMobile = async (req, res) => {
     await User.findByIdAndUpdate(user._id, {
       mobileSessionToken: accessToken,
       mobileRefreshToken: refreshToken,
-    });
+    }, { returnDocument: 'after' });
 
     await Progress.findOneAndUpdate(
       { userId: user._id },
@@ -303,7 +303,7 @@ exports.loginMobile = async (req, res) => {
         },
         $set: { "stats.lastActivity": Date.now() }
       },
-      { upsert: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     res.status(200).json({

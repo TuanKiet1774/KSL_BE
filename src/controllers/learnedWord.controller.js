@@ -21,7 +21,7 @@ async function recalculateProgress(userId, topicId) {
         const progress = await Progress.findOneAndUpdate(
             { userId: uId },
             { $set: { "stats.totalWordsLearned": totalWordsLearned, "stats.totalExp": totalExp } },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: 'after' }
         );
 
         const topicIndex = progress.topicProgress.findIndex(
