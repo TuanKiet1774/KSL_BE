@@ -2,7 +2,6 @@ const User = require("../models/User");
 const Progress = require("../models/Progress");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-// Removed emailService imports
 
 const generateAccessToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || "access_secret_ksl_2026", {
@@ -20,7 +19,6 @@ const generateRefreshToken = (id) => {
   );
 };
 
-// ─── REGISTER: Đăng ký tài khoản mới ──────────────────────────────────────────
 exports.register = async (req, res) => {
   try {
     const {
@@ -34,7 +32,6 @@ exports.register = async (req, res) => {
       gender,
     } = req.body;
 
-    // Kiểm tra tồn tại
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
     if (userExists) {
       return res.status(400).json({
@@ -43,7 +40,6 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Tạo user
     const user = await User.create({
       username,
       fullname,
@@ -73,7 +69,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// ─── LOGIN ─────────────────────────────────────────────────────────────────────
 exports.login = async (req, res) => {
   try {
     const { emailOrUsername, password } = req.body;
@@ -104,8 +99,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Verification check removed
-
     if (user.role !== "admin") {
       return res.status(403).json({
         success: false,
@@ -115,13 +108,10 @@ exports.login = async (req, res) => {
 
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
-
-    // Lưu phiên đăng nhập mới nhất
     user.currentSessionToken = accessToken;
     user.refreshToken = refreshToken;
     await user.save();
 
-    // Ghi nhận phiên đăng nhập web vào accessHistory
     await Progress.findOneAndUpdate(
       { userId: user._id },
       {
@@ -154,10 +144,8 @@ exports.login = async (req, res) => {
   }
 };
 
-// ─── GET PROFILE ─────────────────────────────────────────────────────────────────────────
 const getSessionToken = (req, user) => {
   const token = req.headers.authorization?.split(" ")[1];
-  // Determine if this is a mobile or web session
   if (user.mobileSessionToken && user.mobileSessionToken === token) {
     return { accessToken: user.mobileSessionToken, refreshToken: user.mobileRefreshToken };
   }
@@ -194,7 +182,6 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// ─── UPDATE PROFILE ────────────────────────────────────────────────────────────
 exports.updateProfile = async (req, res) => {
   try {
     const { fullname, avatar, phone, birthday, address, gender } = req.body;
@@ -224,7 +211,6 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// ─── REFRESH TOKEN ─────────────────────────────────────────────────────────────
 exports.refreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.body;
@@ -271,7 +257,6 @@ exports.refreshToken = async (req, res) => {
   }
 };
 
-// ─── LOGIN MOBILE: Đăng nhập trên ứng dụng di động (mọi role, kể cả admin) ───
 exports.loginMobile = async (req, res) => {
   try {
     const { emailOrUsername, password } = req.body;
@@ -305,14 +290,11 @@ exports.loginMobile = async (req, res) => {
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
-    // Lưu phiên đăng nhập mobile (tách biệt với phiên admin web)
-    // Dùng findByIdAndUpdate để tránh chạy lại validators (nhất là password validator)
     await User.findByIdAndUpdate(user._id, {
       mobileSessionToken: accessToken,
       mobileRefreshToken: refreshToken,
     });
 
-    // Ghi nhận phiên đăng nhập mobile vào accessHistory
     await Progress.findOneAndUpdate(
       { userId: user._id },
       {
@@ -353,7 +335,6 @@ exports.loginMobile = async (req, res) => {
   }
 };
 
-// ─── REFRESH TOKEN MOBILE ──────────────────────────────────────────────────────
 exports.refreshTokenMobile = async (req, res) => {
   try {
     const { refreshToken } = req.body;
