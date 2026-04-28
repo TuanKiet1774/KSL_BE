@@ -22,9 +22,9 @@ async function recalculateProgress(userId, topicId) {
         // Tổng số từ đã học toàn bộ
         const totalWordsLearned = await LearnedWord.countDocuments({ userId });
 
-        // Tổng EXP
-        const allLearned = await LearnedWord.find({ userId });
-        const totalExp = allLearned.reduce((sum, w) => sum + (w.expGained || 0), 0);
+        // Lấy tổng EXP từ User model để đảm bảo đồng bộ
+        const user = await User.findById(userId);
+        const totalExp = user ? user.exp : 0;
 
         const progress = await Progress.findOneAndUpdate(
             { userId },
@@ -158,19 +158,19 @@ exports.learnWord = async (req, res) => {
             });
         }
 
+        // Cộng dồn EXP cho người dùng trước khi tạo bản ghi để hook nhận được EXP mới nhất
+        if (expGained && expGained > 0) {
+            await User.findByIdAndUpdate(userId, {
+                $inc: { exp: expGained }
+            });
+        }
+
         const learnedWord = await LearnedWord.create({
             userId,
             wordId,
             topicId,
             expGained: expGained || 0
         });
-
-        // Cộng dồn EXP cho người dùng
-        if (expGained && expGained > 0) {
-            await User.findByIdAndUpdate(userId, {
-                $inc: { exp: expGained }
-            });
-        }
 
         res.status(201).json({
             success: true,

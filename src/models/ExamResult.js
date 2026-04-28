@@ -76,6 +76,12 @@ examResultSchema.post("save", async function (doc) {
         progress.stats.totalLearningMinutes += Math.round((doc.timeSpent || 0) / 60 * 100) / 100;
         progress.stats.lastActivity = Date.now();
 
+        // Đồng bộ tổng EXP từ User model
+        const user = await mongoose.model("User").findById(userId);
+        if (user) {
+            progress.stats.totalExp = user.exp;
+        }
+
         await progress.save();
     } catch (err) {
         console.error("Error updating averageTestScore after ExamResult save:", err);

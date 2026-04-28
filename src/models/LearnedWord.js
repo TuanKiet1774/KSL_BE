@@ -71,6 +71,12 @@ learnedWordSchema.post("save", async function (doc) {
         // Cập nhật tổng số từ đã học (Across all topics)
         const totalWordsLearned = await mongoose.model("LearnedWord").countDocuments({ userId });
         progress.stats.totalWordsLearned = totalWordsLearned;
+
+        // Đồng bộ tổng EXP từ User model
+        const user = await mongoose.model("User").findById(userId);
+        if (user) {
+            progress.stats.totalExp = user.exp;
+        }
         
         // Cập nhật streak
         const today = new Date();

@@ -106,7 +106,10 @@ exports.submitExamResult = async (req, res) => {
 
     await Exam.findById(examId);
 
-    // Tạo ExamResult — hook post("save") sẽ tự tính lại averageTestScore trong Progress
+    // Cộng dồn EXP cho người dùng trước khi tạo bản ghi để hook nhận được EXP mới nhất
+    await User.findByIdAndUpdate(userId, { $inc: { exp: totalScore } });
+
+    // Tạo ExamResult — hook post("save") sẽ tự tính lại averageTestScore và đồng bộ EXP trong Progress
     const examResult = await ExamResult.create({
       userId,
       examId,
@@ -116,18 +119,6 @@ exports.submitExamResult = async (req, res) => {
       timeSpent,
       status: "completed",
     });
-
-    await User.findByIdAndUpdate(userId, { $inc: { exp: totalScore } });
-
-    // Cập nhật totalExp trong Progress stats
-    await Progress.findOneAndUpdate(
-      { userId },
-      {
-        $inc: { "stats.totalExp": totalScore },
-        $set: { "stats.lastActivity": Date.now() }
-      },
-      { upsert: true }
-    );
 
     res.status(201).json({ success: true, data: examResult });
   } catch (error) {
