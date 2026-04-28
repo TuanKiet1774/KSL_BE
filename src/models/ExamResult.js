@@ -43,13 +43,12 @@ examResultSchema.post("save", async function (doc) {
         const allResults = await mongoose.model("ExamResult").find({ userId });
         const validResults = allResults.filter(r => (r.maxScore || 0) > 0);
         const averageTestScore = validResults.length > 0
-            ? validResults.reduce((acc, r) => acc + (r.totalScore / r.maxScore) * 10, 0) / validResults.length
+            ? validResults.reduce((acc, r) => acc + (r.totalScore / r.maxScore) * 100, 0) / validResults.length
             : 0;
 
         const progress = await mongoose.model("Progress").findOne({ userId });
         if (!progress) return;
 
-        // Cập nhật streak logic
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const lastActivityDate = new Date(progress.stats.lastActivity);
@@ -73,7 +72,6 @@ examResultSchema.post("save", async function (doc) {
             progress.stats.maxStreak = Math.max(progress.stats.maxStreak, 1);
         }
 
-        // Cập nhật điểm trung bình và thời gian học
         progress.averageTestScore = Math.round(averageTestScore * 100) / 100;
         progress.stats.totalLearningMinutes += Math.round((doc.timeSpent || 0) / 60 * 100) / 100;
         progress.stats.lastActivity = Date.now();
