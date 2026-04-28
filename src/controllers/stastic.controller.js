@@ -33,6 +33,9 @@ exports.getStastics = async (req, res) => {
     }
     await stastic.save();
 
+    const topicsData = await Topic.find({}, "name totalWord")
+      .sort({ totalWord: -1 });
+
     res.status(200).json({
       success: true,
       data: {
@@ -41,6 +44,7 @@ exports.getStastics = async (req, res) => {
         wordCount,
         feedbackCount,
         questionCount,
+        topicsWords: topicsData,
       },
     });
   } catch (error) {
