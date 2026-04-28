@@ -4,25 +4,13 @@ const Progress = require("../models/Progress");
 const Word = require("../models/Word");
 const mongoose = require("mongoose");
 
-/**
- * Helper: Tính lại topicProgress và stats sau khi xóa từ đã học
- * @param {ObjectId|string} userId
- * @param {ObjectId|string} topicId
- */
 async function recalculateProgress(userId, topicId) {
     try {
-        // Đếm số từ đã học còn lại trong topic
         const learnedWordsCount = await LearnedWord.countDocuments({ userId, topicId });
-
-        // Lấy tổng số từ của topic
         const topic = await mongoose.model("Topic").findById(topicId);
         const totalWords = topic ? topic.totalWord : 0;
         const percentage = totalWords > 0 ? (learnedWordsCount / totalWords) * 100 : 0;
-
-        // Tổng số từ đã học toàn bộ
         const totalWordsLearned = await LearnedWord.countDocuments({ userId });
-
-        // Lấy tổng EXP từ User model để đảm bảo đồng bộ
         const user = await User.findById(userId);
         const totalExp = user ? user.exp : 0;
 

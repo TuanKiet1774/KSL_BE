@@ -33,9 +33,18 @@ exports.getMyProgress = async (req, res) => {
             await progress.save();
         }
 
+        // Đảm bảo trả về dữ liệu đã được ép kiểu số đúng chuẩn
+        const result = progress.toObject();
+        if (result.stats) {
+            result.stats.totalExp = Number(result.stats.totalExp || 0);
+            result.stats.totalWordsLearned = Number(result.stats.totalWordsLearned || 0);
+            result.stats.streakDays = Number(result.stats.streakDays || 0);
+            result.stats.totalLearningMinutes = Number(result.stats.totalLearningMinutes || 0);
+        }
+
         res.status(200).json({
             success: true,
-            data: progress
+            data: result
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
