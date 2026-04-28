@@ -3,6 +3,28 @@ const Word = require("../models/Word");
 const User = require("../models/User");
 const LearnedWord = require("../models/LearnedWord");
 
+// Lấy progress của user hiện tại (qua token)
+exports.getMyProgress = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        let progress = await Progress.findOne({ userId })
+            .populate("topicProgress.topicId");
+
+        if (!progress) {
+            progress = await Progress.create({ userId });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: progress
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Lấy progress theo userId (chỉ dành cho admin)
 exports.getProgress = async (req, res) => {
     try {
         let progress = await Progress.findOne({ userId: req.params.userId })

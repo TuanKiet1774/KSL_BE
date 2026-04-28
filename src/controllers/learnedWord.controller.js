@@ -1,5 +1,54 @@
 const LearnedWord = require("../models/LearnedWord");
 const User = require("../models/User");
+const Progress = require("../models/Progress");
+const Word = require("../models/Word");
+const mongoose = require("mongoose");
+
+/**
+ * Helper: Tính lại topicProgress và stats sau khi xóa từ đã học
+ * @param {ObjectId|string} userId
+ * @param {ObjectId|string} topicId
+ */
+async function recalculateProgress(userId, topicId) {
+    try {
+        // Đếm số từ đã học còn lại trong topic
+        const learnedWordsCount = await LearnedWord.countDocuments({ userId, topicId });
+
+        // Lấy tổng số từ của topic
+        const topic = await mongoose.model("Topic").findById(topicId);
+        const totalWords = topic ? topic.totalWord : 0;
+        const percentage = totalWords > 0 ? (learnedWordsCount / totalWords) * 100 : 0;
+
+        // Tổng số từ đã học toàn bộ
+        const totalWordsLearned = await LearnedWord.countDocuments({ userId });
+
+        // Tổng EXP
+        const allLearned = await LearnedWord.find({ userId });
+        const totalExp = allLearned.reduce((sum, w) => sum + (w.expGained || 0), 0);
+
+        const progress = await Progress.findOneAndUpdate(
+            { userId },
+            { $set: { "stats.totalWordsLearned": totalWordsLearned, "stats.totalExp": totalExp } },
+            { upsert: true, new: true }
+        );
+
+        const topicIndex = progress.topicProgress.findIndex(
+            tp => tp.topicId.toString() === topicId.toString()
+        );
+
+        if (topicIndex > -1) {
+            progress.topicProgress[topicIndex].learnedWordsCount = learnedWordsCount;
+            progress.topicProgress[topicIndex].percentage = percentage;
+            progress.topicProgress[topicIndex].lastUpdated = Date.now();
+        } else if (learnedWordsCount > 0) {
+            progress.topicProgress.push({ topicId, learnedWordsCount, percentage, lastUpdated: Date.now() });
+        }
+
+        await progress.save();
+    } catch (err) {
+        console.error("Error recalculating progress after delete:", err);
+    }
+}
 
 exports.getMyLearnedWords = async (req, res) => {
     try {
@@ -158,6 +207,9 @@ exports.deleteLearnedWord = async (req, res) => {
             });
         }
 
+        // Cập nhật lại Progress sau khi xóa
+        await recalculateProgress(userId, learnedWord.topicId);
+
         res.status(200).json({
             success: true,
             message: "Đã xóa từ vựng khỏi danh sách đã học"
@@ -191,6 +243,9 @@ exports.deleteBulkLearnedWords = async (req, res) => {
 
         const totalExpToSubtract = wordsToDelete.reduce((sum, word) => sum + (word.expGained || 0), 0);
 
+        // Lấy danh sách topic bị ảnh hưởng (duy nhất)
+        const affectedTopicIds = [...new Set(wordsToDelete.map(w => w.topicId.toString()))];
+
         const result = await LearnedWord.deleteMany({
             _id: { $in: ids },
             userId: userId
@@ -201,6 +256,11 @@ exports.deleteBulkLearnedWords = async (req, res) => {
             await User.findByIdAndUpdate(userId, {
                 $inc: { exp: -totalExpToSubtract }
             });
+        }
+
+        // Cập nhật lại Progress cho tất cả topic bị ảnh hưởng
+        for (const topicId of affectedTopicIds) {
+            await recalculateProgress(userId, topicId);
         }
 
         res.status(200).json({
