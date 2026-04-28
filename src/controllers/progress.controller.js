@@ -15,6 +15,24 @@ exports.getMyProgress = async (req, res) => {
             progress = await Progress.create({ userId });
         }
 
+        // Tự động đồng bộ số liệu từ các model khác để đảm bảo chính xác
+        const totalWordsLearned = await LearnedWord.countDocuments({ userId });
+        const user = await User.findById(userId);
+        
+        let needsSave = false;
+        if (progress.stats.totalWordsLearned !== totalWordsLearned) {
+            progress.stats.totalWordsLearned = totalWordsLearned;
+            needsSave = true;
+        }
+        if (user && progress.stats.totalExp !== user.exp) {
+            progress.stats.totalExp = user.exp;
+            needsSave = true;
+        }
+
+        if (needsSave) {
+            await progress.save();
+        }
+
         res.status(200).json({
             success: true,
             data: progress
