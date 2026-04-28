@@ -306,12 +306,18 @@ exports.loginMobile = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        phone: user.phone,
+        birthday: user.birthday,
+        address: user.address,
+        gender: user.gender,
+        level: "",
         exp: user.exp,
         accessToken: accessToken,
         refreshToken: refreshToken,
       },
     });
   } catch (error) {
+    console.error("Login Mobile Error:", error);
     res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -333,7 +339,7 @@ exports.refreshTokenMobile = async (req, res) => {
 
     const decoded = jwt.verify(
       refreshToken,
-      process.env.JWT_REFRESH_SECRET,
+      process.env.JWT_REFRESH_SECRET || "refresh_secret_ksl_2026",
     );
     const user = await User.findById(decoded.id);
 
