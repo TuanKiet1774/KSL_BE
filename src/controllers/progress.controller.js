@@ -3,7 +3,6 @@ const Word = require("../models/Word");
 const User = require("../models/User");
 const LearnedWord = require("../models/LearnedWord");
 
-// Lấy progress của user hiện tại (qua token)
 exports.getMyProgress = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -15,11 +14,11 @@ exports.getMyProgress = async (req, res) => {
             progress = await Progress.create({ userId });
         }
 
-        // Tự động đồng bộ số liệu từ các model khác để đảm bảo chính xác
         const totalWordsLearned = await LearnedWord.countDocuments({ userId });
         const user = await User.findById(userId);
         
         let needsSave = false;
+
         if (progress.stats.totalWordsLearned !== totalWordsLearned) {
             progress.stats.totalWordsLearned = totalWordsLearned;
             needsSave = true;
@@ -29,11 +28,53 @@ exports.getMyProgress = async (req, res) => {
             needsSave = true;
         }
 
+        const actualTopicStats = await LearnedWord.aggregate([
+            { $match: { userId: progress.userId } },
+            { $group: { _id: "$topicId", count: { $sum: 1 } } }
+        ]);
+
+        const statsMap = {};
+        actualTopicStats.forEach(stat => {
+            statsMap[stat._id.toString()] = stat.count;
+        });
+
+        for (let i = progress.topicProgress.length - 1; i >= 0; i--) {
+            const tp = progress.topicProgress[i];
+            const tId = tp.topicId.toString();
+            const actualCount = statsMap[tId] || 0;
+
+            if (actualCount === 0) {
+                progress.topicProgress.splice(i, 1);
+                needsSave = true;
+            } else if (tp.learnedWordsCount !== actualCount) {
+                const topic = await mongoose.model("Topic").findById(tp.topicId);
+                const totalInTopic = topic ? topic.totalWord : 0;
+                
+                tp.learnedWordsCount = actualCount;
+                tp.percentage = totalInTopic > 0 ? (actualCount / totalInTopic) * 100 : 0;
+                tp.lastUpdated = Date.now();
+                needsSave = true;
+            }
+            delete statsMap[tId];
+        }
+
+        for (const [tId, count] of Object.entries(statsMap)) {
+            const topic = await mongoose.model("Topic").findById(tId);
+            const totalInTopic = topic ? topic.totalWord : 0;
+            
+            progress.topicProgress.push({
+                topicId: tId,
+                learnedWordsCount: count,
+                percentage: totalInTopic > 0 ? (count / totalInTopic) * 100 : 0,
+                lastUpdated: Date.now()
+            });
+            needsSave = true;
+        }
+
         if (needsSave) {
             await progress.save();
         }
 
-        // Đảm bảo trả về dữ liệu đã được ép kiểu số đúng chuẩn
         const result = progress.toObject();
         if (result.stats) {
             result.stats.totalExp = Number(result.stats.totalExp || 0);
@@ -51,7 +92,6 @@ exports.getMyProgress = async (req, res) => {
     }
 };
 
-// Lấy progress theo userId (chỉ dành cho admin)
 exports.getProgress = async (req, res) => {
     try {
         let progress = await Progress.findOne({ userId: req.params.userId })
@@ -91,7 +131,6 @@ exports.learnWord = async (req, res) => {
 
         const expGain = word.exp || 5;
 
-        // Tạo bản ghi LearnedWord — hook post("save") sẽ tự cập nhật topicProgress
         await LearnedWord.create({
             userId,
             wordId,
@@ -102,7 +141,6 @@ exports.learnWord = async (req, res) => {
 
         await User.findByIdAndUpdate(userId, { $inc: { exp: expGain } });
 
-        // Cập nhật totalExp trong Progress stats
         await Progress.findOneAndUpdate(
             { userId },
             { $inc: { "stats.totalExp": expGain } },
