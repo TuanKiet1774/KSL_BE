@@ -33,7 +33,10 @@ exports.addToFavorite = async (req, res) => {
             category
         });
 
-        favorite = await FavoriteWord.findById(favorite._id).populate("wordId").populate("topicId");
+        favorite = await FavoriteWord.findById(favorite._id).populate({
+            path: "wordId",
+            populate: { path: "topicId" }
+        });
 
         res.status(201).json({
             success: true,
@@ -58,7 +61,10 @@ exports.getMyFavorites = async (req, res) => {
         }
 
         const favorites = await FavoriteWord.find(query)
-            .populate("wordId")
+            .populate({
+                path: "wordId",
+                populate: { path: "topicId" }
+            })
             .sort("-createdAt");
 
         res.status(200).json({
@@ -100,7 +106,10 @@ exports.updateFavorite = async (req, res) => {
             req.params.id, 
             { note, category }, 
             { new: true, runValidators: true }
-        ).populate("wordId").populate("topicId");
+        ).populate({
+            path: "wordId",
+            populate: { path: "topicId" }
+        });
 
         res.status(200).json({
             success: true,
