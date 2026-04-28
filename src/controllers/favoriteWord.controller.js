@@ -26,12 +26,14 @@ exports.addToFavorite = async (req, res) => {
             });
         }
 
-        const favorite = await FavoriteWord.create({
+        let favorite = await FavoriteWord.create({
             userId: userId,
             wordId: new mongoose.Types.ObjectId(wordId),
             note,
             category
         });
+
+        favorite = await FavoriteWord.findById(favorite._id).populate("wordId").populate("topicId");
 
         res.status(201).json({
             success: true,
@@ -98,7 +100,7 @@ exports.updateFavorite = async (req, res) => {
             req.params.id, 
             { note, category }, 
             { new: true, runValidators: true }
-        );
+        ).populate("wordId").populate("topicId");
 
         res.status(200).json({
             success: true,
