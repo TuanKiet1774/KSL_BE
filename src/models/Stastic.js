@@ -18,6 +18,10 @@ const stasticSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    questionCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

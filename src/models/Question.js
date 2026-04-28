@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { updateStastic } = require("../utils/stasticManager");
 
 const questionSchema = new mongoose.Schema(
   {
@@ -105,5 +106,21 @@ questionSchema.index(
   },
 );
 questionSchema.index({ createdAt: -1 });
+
+questionSchema.pre("save", async function () {
+  this.wasNew = this.isNew;
+});
+
+questionSchema.post("save", async function (doc) {
+  if (this.wasNew) {
+    await updateStastic("questionCount", 1);
+  }
+});
+
+questionSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await updateStastic("questionCount", -1);
+  }
+});
 
 module.exports = mongoose.model("Question", questionSchema);

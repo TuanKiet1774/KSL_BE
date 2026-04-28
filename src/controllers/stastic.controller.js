@@ -2,15 +2,17 @@ const User = require("../models/User");
 const Topic = require("../models/Topic");
 const Word = require("../models/Word");
 const FeedBack = require("../models/FeedBack");
+const Question = require("../models/Question");
 const Stastic = require("../models/Stastic");
 
 exports.getStastics = async (req, res) => {
   try {
-    const [userCount, topicCount, wordCount, feedbackCount] = await Promise.all([
+    const [userCount, topicCount, wordCount, feedbackCount, questionCount] = await Promise.all([
       User.countDocuments(),
       Topic.countDocuments(),
       Word.countDocuments(),
       FeedBack.countDocuments(),
+      Question.countDocuments(),
     ]);
     
     let stastic = await Stastic.findOne();
@@ -20,12 +22,14 @@ exports.getStastics = async (req, res) => {
         topicCount,
         wordCount,
         feedbackCount,
+        questionCount,
       });
     } else {
       stastic.userCount = userCount;
       stastic.topicCount = topicCount;
       stastic.wordCount = wordCount;
       stastic.feedbackCount = feedbackCount;
+      stastic.questionCount = questionCount;
     }
     await stastic.save();
 
@@ -36,6 +40,7 @@ exports.getStastics = async (req, res) => {
         topicCount,
         wordCount,
         feedbackCount,
+        questionCount,
       },
     });
   } catch (error) {

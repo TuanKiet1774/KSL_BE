@@ -66,7 +66,6 @@ topicSchema.post("findOneAndDelete", async function (doc) {
 
         try {
             const wordCount = await mongoose.model("Word").countDocuments({ topicId });
-
             if (wordCount > 0) {
                 // Dùng deleteMany (không kích hoạt hook của Word),
                 // nên phải tự cập nhật wordCount trong Stastic
@@ -75,7 +74,12 @@ topicSchema.post("findOneAndDelete", async function (doc) {
                 await mongoose.model("LearnedWord").deleteMany({ topicId });
             }
 
-            await mongoose.model("Question").deleteMany({ topicId });
+            const questionCount = await mongoose.model("Question").countDocuments({ topicId });
+            if (questionCount > 0) {
+                await mongoose.model("Question").deleteMany({ topicId });
+                await updateStastic("questionCount", -questionCount);
+            }
+
             await mongoose.model("Progress").updateMany(
                 { "topicProgress.topicId": topicId },
                 { $pull: { topicProgress: { topicId: topicId } } }
