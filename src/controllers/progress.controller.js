@@ -89,8 +89,11 @@ exports.getMyProgress = async (req, res) => {
 
         if (needsSave) {
             await progress.save();
+            // Re-populate sau khi save để đảm bảo có đầy đủ thông tin topicId (tên, ảnh...)
+            await progress.populate("topicProgress.topicId");
         }
 
+        // Đảm bảo trả về dữ liệu đã được ép kiểu số đúng chuẩn
         const result = progress.toObject();
         if (result.stats) {
             result.stats.totalExp = Number(result.stats.totalExp || 0);
