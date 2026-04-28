@@ -40,7 +40,6 @@ exports.getMyProgress = async (req, res) => {
             }
         });
 
-        // 1. Cập nhật hoặc xoá các topic hiện có trong progress.topicProgress
         for (let i = progress.topicProgress.length - 1; i >= 0; i--) {
             const tp = progress.topicProgress[i];
             if (!tp.topicId) {
@@ -57,11 +56,10 @@ exports.getMyProgress = async (req, res) => {
                 needsSave = true;
             } else if (tp.learnedWordsCount !== actualCount) {
                 try {
-                    const topic = await mongoose.model("Topic").findById(tp.topicId);
-                    const totalInTopic = topic ? topic.totalWord : 0;
+                    const totalWordsInTopic = await mongoose.model("Word").countDocuments({ topicId: tp.topicId });
                     
                     tp.learnedWordsCount = actualCount;
-                    tp.percentage = totalInTopic > 0 ? (actualCount / totalInTopic) * 100 : 0;
+                    tp.percentage = totalWordsInTopic > 0 ? (actualCount / totalWordsInTopic) * 100 : 0;
                     tp.lastUpdated = Date.now();
                     needsSave = true;
                 } catch (err) {
@@ -71,16 +69,14 @@ exports.getMyProgress = async (req, res) => {
             delete statsMap[tId];
         }
 
-        // 2. Thêm các topic mới
         for (const [tId, count] of Object.entries(statsMap)) {
             try {
-                const topic = await mongoose.model("Topic").findById(tId);
-                if (topic) {
-                    const totalInTopic = topic.totalWord || 0;
+                const totalWordsInTopic = await mongoose.model("Word").countDocuments({ topicId: tId });
+                if (totalWordsInTopic > 0 || count > 0) {
                     progress.topicProgress.push({
                         topicId: tId,
                         learnedWordsCount: count,
-                        percentage: totalInTopic > 0 ? (count / totalInTopic) * 100 : 0,
+                        percentage: totalWordsInTopic > 0 ? (count / totalWordsInTopic) * 100 : 0,
                         lastUpdated: Date.now()
                     });
                     needsSave = true;
