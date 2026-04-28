@@ -26,6 +26,10 @@ const progressSchema = new mongoose.Schema({
     stats: {
         totalExp: { type: Number, default: 0 },
         streakDays: { type: Number, default: 0 },
+        maxStreak: { type: Number, default: 0 },
+        totalWordsLearned: { type: Number, default: 0 },
+        totalLearningMinutes: { type: Number, default: 0 },
+        dailyGoal: { type: Number, default: 10 }, 
         lastActivity: { type: Date, default: Date.now }
     }
 }, { timestamps: true });
