@@ -306,7 +306,6 @@ exports.loginMobile = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
-        level: user.level,
         exp: user.exp,
         accessToken: accessToken,
         refreshToken: refreshToken,

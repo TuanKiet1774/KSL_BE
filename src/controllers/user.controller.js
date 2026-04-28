@@ -11,7 +11,6 @@ exports.getUsers = async (req, res) => {
       address,
       email,
       role,
-      level,
       page,
       limit,
       sortBy,
@@ -42,9 +41,7 @@ exports.getUsers = async (req, res) => {
     if (role) {
       query.role = role;
     }
-    if (level) {
-      query.level = level;
-    }
+
 
     if (birthday) {
       const date = new Date(birthday);
