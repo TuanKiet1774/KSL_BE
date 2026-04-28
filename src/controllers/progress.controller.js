@@ -35,11 +35,20 @@ exports.getMyProgress = async (req, res) => {
 
         const statsMap = {};
         actualTopicStats.forEach(stat => {
-            statsMap[stat._id.toString()] = stat.count;
+            if (stat._id) {
+                statsMap[stat._id.toString()] = stat.count;
+            }
         });
 
+        // 1. Cập nhật hoặc xoá các topic hiện có trong progress.topicProgress
         for (let i = progress.topicProgress.length - 1; i >= 0; i--) {
             const tp = progress.topicProgress[i];
+            if (!tp.topicId) {
+                progress.topicProgress.splice(i, 1);
+                needsSave = true;
+                continue;
+            }
+            
             const tId = tp.topicId.toString();
             const actualCount = statsMap[tId] || 0;
 
@@ -47,28 +56,38 @@ exports.getMyProgress = async (req, res) => {
                 progress.topicProgress.splice(i, 1);
                 needsSave = true;
             } else if (tp.learnedWordsCount !== actualCount) {
-                const topic = await mongoose.model("Topic").findById(tp.topicId);
-                const totalInTopic = topic ? topic.totalWord : 0;
-                
-                tp.learnedWordsCount = actualCount;
-                tp.percentage = totalInTopic > 0 ? (actualCount / totalInTopic) * 100 : 0;
-                tp.lastUpdated = Date.now();
-                needsSave = true;
+                try {
+                    const topic = await mongoose.model("Topic").findById(tp.topicId);
+                    const totalInTopic = topic ? topic.totalWord : 0;
+                    
+                    tp.learnedWordsCount = actualCount;
+                    tp.percentage = totalInTopic > 0 ? (actualCount / totalInTopic) * 100 : 0;
+                    tp.lastUpdated = Date.now();
+                    needsSave = true;
+                } catch (err) {
+                    console.error("Lỗi khi đồng bộ topic:", err);
+                }
             }
             delete statsMap[tId];
         }
 
+        // 2. Thêm các topic mới
         for (const [tId, count] of Object.entries(statsMap)) {
-            const topic = await mongoose.model("Topic").findById(tId);
-            const totalInTopic = topic ? topic.totalWord : 0;
-            
-            progress.topicProgress.push({
-                topicId: tId,
-                learnedWordsCount: count,
-                percentage: totalInTopic > 0 ? (count / totalInTopic) * 100 : 0,
-                lastUpdated: Date.now()
-            });
-            needsSave = true;
+            try {
+                const topic = await mongoose.model("Topic").findById(tId);
+                if (topic) {
+                    const totalInTopic = topic.totalWord || 0;
+                    progress.topicProgress.push({
+                        topicId: tId,
+                        learnedWordsCount: count,
+                        percentage: totalInTopic > 0 ? (count / totalInTopic) * 100 : 0,
+                        lastUpdated: Date.now()
+                    });
+                    needsSave = true;
+                }
+            } catch (err) {
+                console.error("Lỗi khi thêm topic mới vào progress:", err);
+            }
         }
 
         if (needsSave) {
