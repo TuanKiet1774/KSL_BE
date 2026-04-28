@@ -1,5 +1,7 @@
 const Word = require("../models/Word");
 const Topic = require("../models/Topic");
+const FavoriteWord = require("../models/FavoriteWord");
+const LearnedWord = require("../models/LearnedWord");
 const paginate = require("../utils/pagination");
 
 exports.getWords = async (req, res) => {
@@ -51,9 +53,38 @@ exports.getWords = async (req, res) => {
       populate: "topicId",
     });
 
+    // Bổ sung trạng thái isFavorite và isLearned nếu có user
+    if (req.user) {
+      const userId = req.user._id;
+      const wordIds = result.data.map(w => w._id);
+
+      const [favorites, learned] = await Promise.all([
+        FavoriteWord.find({ userId, wordId: { $in: wordIds } }),
+        LearnedWord.find({ userId, wordId: { $in: wordIds } })
+      ]);
+
+      const favoriteIds = new Set(favorites.map(f => String(f.wordId)));
+      const learnedIds = new Set(learned.map(l => String(l.wordId)));
+
+      const dataWithStatus = result.data.map(word => {
+        const wordObj = word.toObject();
+        const idStr = String(word._id);
+        return {
+          ...wordObj,
+          isFavorite: favoriteIds.has(idStr),
+          isLearned: learnedIds.has(idStr)
+        };
+      });
+
+      return res.status(200).json({
+        success: true,
+        ...result,
+        data: dataWithStatus
+      });
+    }
+
     res.status(200).json({
       success: true,
-      count: result.data.length,
       ...result,
     });
   } catch (error) {
@@ -88,7 +119,21 @@ exports.getWordById = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Không tìm thấy từ vựng" });
     }
-    res.status(200).json({ success: true, data: word });
+
+    const wordObj = word.toObject();
+    
+    // Bổ sung trạng thái nếu có user
+    if (req.user) {
+      const userId = req.user._id;
+      const [isFavorite, isLearned] = await Promise.all([
+        FavoriteWord.exists({ userId, wordId: word._id }),
+        LearnedWord.exists({ userId, wordId: word._id })
+      ]);
+      wordObj.isFavorite = !!isFavorite;
+      wordObj.isLearned = !!isLearned;
+    }
+
+    res.status(200).json({ success: true, data: wordObj });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

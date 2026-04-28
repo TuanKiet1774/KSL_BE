@@ -4,12 +4,15 @@ const {
     addToFavorite,
     getMyFavorites,
     updateFavorite,
-    removeFromFavorite
+    removeFromFavorite,
+    removeFromFavoriteByWordId
 } = require("../controllers/favoriteWord.controller");
 
 router.route("/")
     .get(getMyFavorites)
     .post(addToFavorite);
+
+router.delete("/word/:wordId", removeFromFavoriteByWordId);
 
 router.route("/:id")
     .put(updateFavorite)
