@@ -175,3 +175,41 @@ exports.learnWord = async (req, res) => {
     }
 };
 
+exports.updateLearningTime = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { durationMinutes } = req.body;
+
+        if (!durationMinutes || durationMinutes <= 0) {
+            return res.status(400).json({ success: false, message: "Thời lượng không hợp lệ" });
+        }
+
+        const progress = await Progress.findOneAndUpdate(
+            { userId },
+            { 
+                $inc: { "stats.totalLearningMinutes": durationMinutes },
+                $push: { 
+                    accessHistory: { 
+                        sessionStart: new Date(Date.now() - durationMinutes * 60000),
+                        sessionEnd: new Date(),
+                        duration: durationMinutes,
+                        activity: "learning_session"
+                    } 
+                }
+            },
+            { upsert: true, new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Đã cập nhật thời gian học",
+            data: {
+                totalLearningMinutes: progress.stats.totalLearningMinutes
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
