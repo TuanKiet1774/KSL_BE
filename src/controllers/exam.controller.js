@@ -156,7 +156,9 @@ exports.deleteExamResult = async (req, res) => {
 
 exports.clearUserResults = async (req, res) => {
   try {
-    await ExamResult.deleteMany({ userId: req.params.userId });
+    const { userId } = req.params;
+    await ExamResult.deleteMany({ userId });
+    await Progress.findOneAndUpdate({ userId }, { averageTestScore: 0 });
     res.status(200).json({ success: true, message: "Đã xóa toàn bộ lịch sử bài thi" });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

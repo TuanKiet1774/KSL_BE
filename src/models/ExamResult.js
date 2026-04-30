@@ -88,4 +88,24 @@ examResultSchema.post("save", async function (doc) {
     }
 });
 
+examResultSchema.post("findOneAndDelete", async function (doc) {
+    if (doc) {
+        try {
+            const { userId } = doc;
+            const allResults = await mongoose.model("ExamResult").find({ userId });
+            const validResults = allResults.filter(r => (r.maxScore || 0) > 0);
+            const averageTestScore = validResults.length > 0
+                ? validResults.reduce((acc, r) => acc + (r.totalScore / r.maxScore) * 100, 0) / validResults.length
+                : 0;
+
+            await mongoose.model("Progress").findOneAndUpdate(
+                { userId },
+                { averageTestScore: Math.round(averageTestScore * 100) / 100 }
+            );
+        } catch (err) {
+            console.error("Error updating averageTestScore after ExamResult deletion:", err);
+        }
+    }
+});
+
 module.exports = mongoose.model("ExamResult", examResultSchema);
