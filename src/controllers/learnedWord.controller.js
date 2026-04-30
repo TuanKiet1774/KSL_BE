@@ -2,6 +2,7 @@ const LearnedWord = require("../models/LearnedWord");
 const User = require("../models/User");
 const Progress = require("../models/Progress");
 const Word = require("../models/Word");
+const FavoriteWord = require("../models/FavoriteWord");
 const mongoose = require("mongoose");
 
 async function recalculateProgress(userId, topicId) {
@@ -208,6 +209,9 @@ exports.deleteLearnedWord = async (req, res) => {
             });
         }
 
+        // Xóa khỏi mục yêu thích nếu có
+        await FavoriteWord.deleteMany({ userId, wordId: learnedWord.wordId });
+
         // Cập nhật lại Progress sau khi xóa
         await recalculateProgress(userId, learnedWord.topicId);
 
@@ -251,6 +255,10 @@ exports.deleteBulkLearnedWords = async (req, res) => {
             _id: { $in: ids },
             userId: userId
         });
+
+        // Xóa khỏi mục yêu thích cho tất cả các từ bị xóa
+        const wordIdsToDelete = wordsToDelete.map(w => w.wordId);
+        await FavoriteWord.deleteMany({ userId, wordId: { $in: wordIdsToDelete } });
 
         // Trừ tổng EXP cho người dùng
         if (totalExpToSubtract > 0) {
