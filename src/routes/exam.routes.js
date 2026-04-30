@@ -8,6 +8,8 @@ router.route("/")
 
 router.post("/submit", examController.submitExamResult); 
 router.get("/user/:userId", examController.getUserResults); 
+router.delete("/user/:userId/clear", examController.clearUserResults);
+router.delete("/results/:id", examController.deleteExamResult);
 
 router.route("/:id")
     .get(examController.getExamById)

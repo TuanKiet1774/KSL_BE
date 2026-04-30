@@ -141,3 +141,24 @@ exports.getUserResults = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+exports.deleteExamResult = async (req, res) => {
+  try {
+    const result = await ExamResult.findByIdAndDelete(req.params.id);
+    if (!result) {
+      return res.status(404).json({ success: false, message: "Kết quả không tồn tại" });
+    }
+    res.status(200).json({ success: true, message: "Đã xóa kết quả bài thi" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.clearUserResults = async (req, res) => {
+  try {
+    await ExamResult.deleteMany({ userId: req.params.userId });
+    res.status(200).json({ success: true, message: "Đã xóa toàn bộ lịch sử bài thi" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
