@@ -178,11 +178,19 @@ exports.learnWord = async (req, res) => {
 exports.updateLearningTime = async (req, res) => {
     try {
         const userId = req.user._id;
-        const { durationMinutes } = req.body;
+        let { durationMinutes, duration } = req.body;
+
+        // Nếu có gửi 'duration' (giây), ưu tiên dùng nó và đổi sang phút
+        if (duration && duration > 0) {
+            durationMinutes = duration / 60.0;
+        }
 
         if (!durationMinutes || durationMinutes <= 0) {
             return res.status(400).json({ success: false, message: "Thời lượng không hợp lệ" });
         }
+
+        // Làm tròn đến 2 chữ số thập phân để tránh sai số floating point quá lớn
+        durationMinutes = Math.round(durationMinutes * 100) / 100;
 
         const progress = await Progress.findOneAndUpdate(
             { userId },
