@@ -175,12 +175,47 @@ exports.learnWord = async (req, res) => {
     }
 };
 
+/**
+ * Helper để cập nhật streak dựa trên ngày hoạt động cuối cùng
+ */
+const _updateStreak = (progress) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const lastActivityDate = progress.stats.lastActivity ? new Date(progress.stats.lastActivity) : null;
+    if (lastActivityDate) {
+        lastActivityDate.setHours(0, 0, 0, 0);
+    }
+
+    if (!lastActivityDate) {
+        // Lần đầu tiên hoạt động
+        progress.stats.streakDays = 1;
+    } else if (today.getTime() > lastActivityDate.getTime()) {
+        const diffTime = today.getTime() - lastActivityDate.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+            progress.stats.streakDays += 1;
+        } else if (diffDays > 1) {
+            progress.stats.streakDays = 1;
+        }
+    } else if (progress.stats.streakDays === 0) {
+        progress.stats.streakDays = 1;
+    }
+
+    if (progress.stats.streakDays > progress.stats.maxStreak) {
+        progress.stats.maxStreak = progress.stats.streakDays;
+    }
+
+    progress.stats.lastActivity = Date.now();
+    return progress;
+};
+
 exports.updateLearningTime = async (req, res) => {
     try {
         const userId = req.user._id;
         let { durationMinutes, duration } = req.body;
 
-        // Nếu có gửi 'duration' (giây), ưu tiên dùng nó và đổi sang phút
         if (duration && duration > 0) {
             durationMinutes = duration / 60.0;
         }
@@ -189,30 +224,33 @@ exports.updateLearningTime = async (req, res) => {
             return res.status(400).json({ success: false, message: "Thời lượng không hợp lệ" });
         }
 
-        // Làm tròn đến 2 chữ số thập phân để tránh sai số floating point quá lớn
         durationMinutes = Math.round(durationMinutes * 100) / 100;
 
-        const progress = await Progress.findOneAndUpdate(
-            { userId },
-            { 
-                $inc: { "stats.totalLearningMinutes": durationMinutes },
-                $push: { 
-                    accessHistory: { 
-                        sessionStart: new Date(Date.now() - durationMinutes * 60000),
-                        sessionEnd: new Date(),
-                        duration: durationMinutes,
-                        activity: "learning_session"
-                    } 
-                }
-            },
-            { upsert: true, new: true }
-        );
+        let progress = await Progress.findOne({ userId });
+        if (!progress) {
+            progress = new Progress({ userId });
+        }
+
+        // Cập nhật thời gian và lịch sử
+        progress.stats.totalLearningMinutes += durationMinutes;
+        progress.accessHistory.push({
+            sessionStart: new Date(Date.now() - durationMinutes * 60000),
+            sessionEnd: new Date(),
+            duration: durationMinutes,
+            activity: "learning_session"
+        });
+
+        // Cập nhật streak dựa trên phiên làm việc
+        progress = _updateStreak(progress);
+
+        await progress.save();
 
         res.status(200).json({
             success: true,
-            message: "Đã cập nhật thời gian học",
+            message: "Đã cập nhật thời gian học và streak",
             data: {
-                totalLearningMinutes: progress.stats.totalLearningMinutes
+                totalLearningMinutes: progress.stats.totalLearningMinutes,
+                streakDays: progress.stats.streakDays
             }
         });
     } catch (error) {

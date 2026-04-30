@@ -78,30 +78,6 @@ learnedWordSchema.post("save", async function (doc) {
             progress.stats.totalExp = user.exp;
         }
         
-        // Cập nhật streak
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const lastActivityDate = new Date(progress.stats.lastActivity);
-        lastActivityDate.setHours(0, 0, 0, 0);
-
-        if (today.getTime() > lastActivityDate.getTime()) {
-            const diffTime = Math.abs(today - lastActivityDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays === 1) {
-                progress.stats.streakDays += 1;
-            } else if (diffDays > 1) {
-                progress.stats.streakDays = 1;
-            }
-            
-            if (progress.stats.streakDays > progress.stats.maxStreak) {
-                progress.stats.maxStreak = progress.stats.streakDays;
-            }
-        } else if (progress.stats.streakDays === 0) {
-            progress.stats.streakDays = 1;
-            progress.stats.maxStreak = Math.max(progress.stats.maxStreak, 1);
-        }
-
         progress.stats.lastActivity = Date.now();
         await progress.save();
     } catch (err) {
