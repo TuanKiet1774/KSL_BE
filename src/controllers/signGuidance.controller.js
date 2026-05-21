@@ -10,11 +10,13 @@ const {
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 const GEMINI_MODELS = [
-  "gemini-3.1-flash-lite", // 500 RPD - ưu tiên nhất
-  "gemini-2.5-flash", // 20 RPD
-  "gemini-2.5-flash-lite", // 20 RPD
-  "gemini-3.5-flash", // 20 RPD
-  "gemini-3.0-flash", // 20 RPD
+  "gemini-3.1-flash-lite", // 15 RPM - ưu tiên nhất
+  "gemma-4-26b-it", // 15 RPM
+  "gemma-4-31b-it", // 15 RPM
+  "gemini-2.5-flash-lite", // 10 RPM
+  "gemini-2.5-flash", // 5 RPM
+  "gemini-3.5-flash", // 5 RPM
+  "gemini-3-flash", // 5 RPM
 ];
 
 const ALL_STOP_WORDS = [...Gioi_tu, ...Lien_tu, ...Tu_tinhthai, ...Tro_tu]
@@ -88,72 +90,50 @@ async function reorderWithGemini(contentWords) {
   if (contentWords.length <= 1) return contentWords;
 
 const prompt = `Bạn là chuyên gia ngôn ngữ ký hiệu tiếng Việt (NNKH).
-Nhận mảng từ tiếng Việt đã được lọc sẵn, sắp xếp lại đúng cấu trúc NNKH.
+Nhận mảng từ tiếng Việt đã được lọc sẵn, xử lý lại theo cấu trúc NNKH.
 
-=== QUY TẮC SẮP XẾP ===
+=== NGUYÊN TẮC CHÍNH ===
+Ngôn ngữ ký hiệu tiếng Việt GIỮ NGUYÊN thứ tự từ như tiếng Việt thông thường.
+KHÔNG đảo thứ tự từ. Chỉ gộp từ liên quan và xử lý tên riêng/câu chào.
 
-1. CHỦ THỂ (ai làm) → đứng đầu tiên
-   - Đại từ nhân xưng: tôi, bạn, anh, chị, em, cậu, họ, chúng tôi...
-   - Tên người, danh xưng cụ thể
-   Ví dụ: "tôi", "anh Nam", "cô giáo"
-
-2. BỐI CẢNH THỜI GIAN → đứng sau chủ thể
-   - Từ chỉ thời gian: hôm nay, hôm qua, sáng, tối, năm ngoái...
-
-3. BỐI CẢNH ĐỊA ĐIỂM → đứng sau thời gian
-   - Từ chỉ nơi chốn: trường, nhà, công viên, siêu thị...
-
-4. ĐỐI TƯỢNG / DANH TỪ → đứng trước hành động
-   - Số lượng đặt NGAY SAU danh từ liên quan
-
-5. TÍNH TỪ MÔ TẢ → đứng NGAY SAU danh từ nó bổ nghĩa
-   - Màu sắc, kích thước, trạng thái...
-
-6. HÀNH ĐỘNG / ĐỘNG TỪ → đứng cuối
-
-7. CÂU HỎI → từ để hỏi đặt CUỐI câu
-   - ai, gì, ở đâu, khi nào, bao nhiêu, như thế nào...
-
-=== XỬ LÝ TÊN RIÊNG CỦA NGƯỜI ===
-
-Nhận biết tên riêng: từ viết hoa đầu chữ, là tên người Việt Nam (họ tên).
-
-Quy tắc tách chữ cái:
-- Tách từng chữ cái của tên thành các phần tử riêng biệt trong mảng
-- Dấu thanh điệu tách riêng thành 1 phần tử ở CUỐI tên:
-  * Không dấu → không thêm gì
-  * Dấu sắc (á, é, ó...) → thêm "sắc"
-  * Dấu huyền (à, è, ò...) → thêm "huyền"
-  * Dấu hỏi (ả, ẻ, ỏ...) → thêm "hỏi"
-  * Dấu ngã (ã, ẽ, õ...) → thêm "ngã"
-  * Dấu nặng (ạ, ẹ, ọ...) → thêm "nặng"
-- Chữ cái viết IN HOA, bỏ dấu thanh trên chữ cái (ê → Ê, ă → Ă, ơ → Ơ...)
-
-Quy tắc họ tên đầy đủ:
-- Nếu là tên đầy đủ (2-3 từ): chỉ lấy tên chính (từ cuối cùng) để ký hiệu
-- Tên chính = từ cuối cùng trong họ tên
-  * "Nam" → tên chính là "Nam"
-  * "Tuấn Kiệt" → tên chính là "Kiệt"  
-  * "Phạm Tuấn Kiệt" → tên chính là "Kiệt"
-
-Ví dụ tách tên:
-- "Nam" → ["N", "A", "M"]
-- "Kiệt" → ["K", "I", "Ê", "T", "nặng"]
-- "Thái" → ["T", "H", "A", "I", "sắc"]
-- "Tuấn" → ["T", "U", "Â", "N", "sắc"]
-- "Hòa" → ["H", "O", "A", "huyền"]
-- "Phạm Tuấn Kiệt" → tên chính "Kiệt" → ["K", "I", "Ê", "T", "nặng"]
-- "anh Kiệt" → giữ "anh", tách "Kiệt" → ["anh", "K", "I", "Ê", "T", "nặng"]
-
-=== GỘP TỪ LIÊN QUAN ===
+=== GỘP TỪ LIÊN QUAN (giữ vị trí trong câu) ===
 - Danh từ ghép: "xe" + "đạp" → "xe đạp"
 - Động từ ghép: "đi" + "học" → "đi học"
 - Cụm danh từ: "thùng" + "sữa" → "thùng sữa"
+- Số lượng + danh từ: "1" + "thùng sữa" → giữ nguyên thứ tự trong câu
 - KHÔNG gộp nếu hai từ thuộc vai trò khác nhau trong câu
+
+=== XỬ LÝ CÂU CHÀO ===
+Các từ/cụm sau đây đều mang nghĩa chào hỏi, quy về "xin chào":
+- "xin chào", "chào", "hello", "hi", "hey"
+- "hân hạnh được gặp", "rất vui được gặp", "vui được gặp"
+
+Ví dụ:
+- ["chào", "bạn"] → ["xin chào", "bạn"]
+- ["hello", "tôi", "tên", "Nam"] → ["xin chào", "tôi", "tên", "N", "A", "M"]
+
+=== XỬ LÝ TÊN RIÊNG CỦA NGƯỜI ===
+Nhận biết tên riêng: từ viết hoa đầu chữ, là tên người Việt Nam.
+
+Quy tắc tách chữ cái:
+- Tách từng chữ cái thành phần tử riêng biệt
+- Dấu thanh tách riêng thành 1 phần tử ở CUỐI:
+  * Dấu sắc → thêm "sắc"
+  * Dấu huyền → thêm "huyền"
+  * Dấu hỏi → thêm "hỏi"
+  * Dấu ngã → thêm "ngã"
+  * Dấu nặng → thêm "nặng"
+  * Không dấu → không thêm gì
+- Chữ cái viết IN HOA, bỏ dấu thanh (ê → Ê, ă → Ă, ơ → Ơ...)
+
+Quy tắc họ tên đầy đủ:
+- Chỉ lấy tên chính (từ cuối cùng) để ký hiệu
+  * "Phạm Tuấn Kiệt" → tên chính "Kiệt" → ["K", "I", "Ê", "T", "nặng"]
+  * "Trần Thái" → tên chính "Thái" → ["T", "H", "A", "I", "sắc"]
 
 === VÍ DỤ TỔNG HỢP ===
 input:  ["tôi", "mua", "1", "thùng", "sữa"]
-output: ["tôi", "thùng sữa", "1", "mua"]
+output: ["tôi", "mua", "1", "thùng sữa"]
 
 input:  ["tôi", "tên", "Kiệt"]
 output: ["tôi", "tên", "K", "I", "Ê", "T", "nặng"]
@@ -162,19 +142,28 @@ input:  ["bạn", "tên", "Phạm", "Tuấn", "Kiệt"]
 output: ["bạn", "tên", "K", "I", "Ê", "T", "nặng"]
 
 input:  ["anh", "Thái", "đi", "học"]
-output: ["T", "H", "A", "I", "sắc", "đi học"]
+output: ["anh", "T", "H", "A", "I", "sắc", "đi học"]
 
 input:  ["tôi", "gặp", "Nam", "hôm qua", "trường"]
-output: ["tôi", "hôm qua", "trường", "N", "A", "M", "gặp"]
+output: ["tôi", "gặp", "N", "A", "M", "hôm qua", "trường"]
 
 input:  ["đi", "học", "xe", "đạp"]
 output: ["đi học", "xe đạp"]
 
 input:  ["cậu", "ăn", "bún", "bánh", "mì"]
-output: ["cậu", "bún", "bánh mì", "ăn"]
+output: ["cậu", "ăn", "bún", "bánh mì"]
 
 input:  ["bạn", "tên", "gì"]
 output: ["bạn", "tên", "gì"]
+
+input:  ["chào", "bạn", "khỏe"]
+output: ["xin chào", "bạn", "khỏe"]
+
+input:  ["trời", "mưa", "tôi", "đi", "học"]
+output: ["trời", "mưa", "tôi", "đi học"]
+
+input:  ["anh", "em", "đi", "chơi"]
+output: ["anh", "em", "đi chơi"]
 
 Chỉ trả về JSON array, KHÔNG có markdown, KHÔNG giải thích.
 Input: ${JSON.stringify(contentWords)}`;
