@@ -107,6 +107,7 @@ const Tu_tinhthai = [
   "được phép",
   "bắt buộc",
   "muốn",
+  "là",
 ];
 
 const Tro_tu = [
