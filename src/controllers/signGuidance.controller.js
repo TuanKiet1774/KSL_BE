@@ -48,31 +48,6 @@ function getDisplayWord(word) {
   return word;
 }
 
-// Cập nhật phần tra DB trong analyzeSign
-const wordResults = await Promise.all(
-  signSequence.map(async (word) => {
-    const displayWord = getDisplayWord(word);
-
-    // Thử tìm với displayWord trước, nếu không có thì thử word gốc
-    let found = await Word.findOne({
-      name: { $regex: `^${escapeRegex(displayWord)}$`, $options: "i" },
-    }).populate("topicId");
-
-    if (!found && displayWord !== word) {
-      found = await Word.findOne({
-        name: { $regex: `^${escapeRegex(word)}$`, $options: "i" },
-      }).populate("topicId");
-    }
-
-    return {
-      word,
-      displayWord,   // ← thêm field này
-      found: !!found,
-      data: found || null,
-    };
-  })
-);
-
 function extractContentWords(sentence) {
   const normalized = sentence
     .toLowerCase()
@@ -265,12 +240,21 @@ exports.analyzeSign = async (req, res) => {
 
     const wordResults = await Promise.all(
       signSequence.map(async (word) => {
-        const found = await Word.findOne({
-          name: { $regex: `^${escapeRegex(word)}$`, $options: "i" },
+        const displayWord = getDisplayWord(word);
+
+        let found = await Word.findOne({
+          name: { $regex: `^${escapeRegex(displayWord)}$`, $options: "i" },
         }).populate("topicId");
+
+        if (!found && displayWord !== word) {
+          found = await Word.findOne({
+            name: { $regex: `^${escapeRegex(word)}$`, $options: "i" },
+          }).populate("topicId");
+        }
 
         return {
           word,
+          displayWord,
           found: !!found,
           data: found || null,
         };
