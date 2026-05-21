@@ -70,7 +70,7 @@ function extractContentWords(sentence) {
 async function reorderWithGemini(contentWords) {
   if (contentWords.length <= 1) return contentWords;
 
-  const prompt = `Bạn là chuyên gia ngôn ngữ ký hiệu tiếng Việt (NNKH).
+const prompt = `Bạn là chuyên gia ngôn ngữ ký hiệu tiếng Việt (NNKH).
 Nhận mảng từ tiếng Việt đã được lọc sẵn, sắp xếp lại đúng cấu trúc NNKH.
 
 === QUY TẮC SẮP XẾP ===
@@ -82,28 +82,51 @@ Nhận mảng từ tiếng Việt đã được lọc sẵn, sắp xếp lại �
 
 2. BỐI CẢNH THỜI GIAN → đứng sau chủ thể
    - Từ chỉ thời gian: hôm nay, hôm qua, sáng, tối, năm ngoái...
-   Ví dụ: ["tôi", "hôm qua", ...]
 
 3. BỐI CẢNH ĐỊA ĐIỂM → đứng sau thời gian
    - Từ chỉ nơi chốn: trường, nhà, công viên, siêu thị...
-   Ví dụ: ["tôi", "hôm qua", "trường", ...]
 
 4. ĐỐI TƯỢNG / DANH TỪ → đứng trước hành động
-   - Vật, người được nhắc đến trong câu
    - Số lượng đặt NGAY SAU danh từ liên quan
-   Ví dụ: ["sữa", "2 hộp"] không phải ["2", "hộp", "sữa"]
 
 5. TÍNH TỪ MÔ TẢ → đứng NGAY SAU danh từ nó bổ nghĩa
    - Màu sắc, kích thước, trạng thái...
-   Ví dụ: ["áo", "đỏ"] không phải ["đỏ", "áo"]
 
 6. HÀNH ĐỘNG / ĐỘNG TỪ → đứng cuối
-   - Hành động chính của câu
-   Ví dụ: "mua", "ăn", "đi", "học"
 
 7. CÂU HỎI → từ để hỏi đặt CUỐI câu
    - ai, gì, ở đâu, khi nào, bao nhiêu, như thế nào...
-   Ví dụ: ["bạn", "tên", "gì"] không phải ["gì", "tên", "bạn"]
+
+=== XỬ LÝ TÊN RIÊNG CỦA NGƯỜI ===
+
+Nhận biết tên riêng: từ viết hoa đầu chữ, là tên người Việt Nam (họ tên).
+
+Quy tắc tách chữ cái:
+- Tách từng chữ cái của tên thành các phần tử riêng biệt trong mảng
+- Dấu thanh điệu tách riêng thành 1 phần tử ở CUỐI tên:
+  * Không dấu → không thêm gì
+  * Dấu sắc (á, é, ó...) → thêm "sắc"
+  * Dấu huyền (à, è, ò...) → thêm "huyền"
+  * Dấu hỏi (ả, ẻ, ỏ...) → thêm "hỏi"
+  * Dấu ngã (ã, ẽ, õ...) → thêm "ngã"
+  * Dấu nặng (ạ, ẹ, ọ...) → thêm "nặng"
+- Chữ cái viết IN HOA, bỏ dấu thanh trên chữ cái (ê → Ê, ă → Ă, ơ → Ơ...)
+
+Quy tắc họ tên đầy đủ:
+- Nếu là tên đầy đủ (2-3 từ): chỉ lấy tên chính (từ cuối cùng) để ký hiệu
+- Tên chính = từ cuối cùng trong họ tên
+  * "Nam" → tên chính là "Nam"
+  * "Tuấn Kiệt" → tên chính là "Kiệt"  
+  * "Phạm Tuấn Kiệt" → tên chính là "Kiệt"
+
+Ví dụ tách tên:
+- "Nam" → ["N", "A", "M"]
+- "Kiệt" → ["K", "I", "Ê", "T", "nặng"]
+- "Thái" → ["T", "H", "A", "I", "sắc"]
+- "Tuấn" → ["T", "U", "Â", "N", "sắc"]
+- "Hòa" → ["H", "O", "A", "huyền"]
+- "Phạm Tuấn Kiệt" → tên chính "Kiệt" → ["K", "I", "Ê", "T", "nặng"]
+- "anh Kiệt" → giữ "anh", tách "Kiệt" → ["anh", "K", "I", "Ê", "T", "nặng"]
 
 === GỘP TỪ LIÊN QUAN ===
 - Danh từ ghép: "xe" + "đạp" → "xe đạp"
@@ -111,9 +134,21 @@ Nhận mảng từ tiếng Việt đã được lọc sẵn, sắp xếp lại �
 - Cụm danh từ: "thùng" + "sữa" → "thùng sữa"
 - KHÔNG gộp nếu hai từ thuộc vai trò khác nhau trong câu
 
-=== VÍ DỤ ===
+=== VÍ DỤ TỔNG HỢP ===
 input:  ["tôi", "mua", "1", "thùng", "sữa"]
 output: ["tôi", "thùng sữa", "1", "mua"]
+
+input:  ["tôi", "tên", "Kiệt"]
+output: ["tôi", "tên", "K", "I", "Ê", "T", "nặng"]
+
+input:  ["bạn", "tên", "Phạm", "Tuấn", "Kiệt"]
+output: ["bạn", "tên", "K", "I", "Ê", "T", "nặng"]
+
+input:  ["anh", "Thái", "đi", "học"]
+output: ["T", "H", "A", "I", "sắc", "đi học"]
+
+input:  ["tôi", "gặp", "Nam", "hôm qua", "trường"]
+output: ["tôi", "hôm qua", "trường", "N", "A", "M", "gặp"]
 
 input:  ["đi", "học", "xe", "đạp"]
 output: ["đi học", "xe đạp"]
@@ -121,17 +156,8 @@ output: ["đi học", "xe đạp"]
 input:  ["cậu", "ăn", "bún", "bánh", "mì"]
 output: ["cậu", "bún", "bánh mì", "ăn"]
 
-input:  ["trời", "mưa", "tôi", "đi", "học"]
-output: ["trời", "mưa", "tôi", "đi học"]
-
-input:  ["anh", "em", "đi", "chơi"]
-output: ["anh", "em", "đi chơi"]
-
 input:  ["bạn", "tên", "gì"]
 output: ["bạn", "tên", "gì"]
-
-input:  ["tôi", "hôm qua", "siêu thị", "mua", "áo", "đỏ", "2"]
-output: ["tôi", "hôm qua", "siêu thị", "áo đỏ", "2", "mua"]
 
 Chỉ trả về JSON array, KHÔNG có markdown, KHÔNG giải thích.
 Input: ${JSON.stringify(contentWords)}`;
