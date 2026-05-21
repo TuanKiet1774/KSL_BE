@@ -70,22 +70,70 @@ function extractContentWords(sentence) {
 async function reorderWithGemini(contentWords) {
   if (contentWords.length <= 1) return contentWords;
 
-  const prompt = `Bạn là chuyên gia ngôn ngữ ký hiệu tiếng Việt.
-Nhận mảng từ tiếng Việt đã được lọc sẵn, sắp xếp lại theo cấu trúc ngôn ngữ ký hiệu.
+  const prompt = `Bạn là chuyên gia ngôn ngữ ký hiệu tiếng Việt (NNKH).
+Nhận mảng từ tiếng Việt đã được lọc sẵn, sắp xếp lại đúng cấu trúc NNKH.
 
-Quy tắc sắp xếp:
-1. Đại từ nhân xưng (tôi, bạn, anh, chị...) → đứng đầu
-2. Danh từ / đối tượng → đứng tiếp theo
-3. Số lượng → đứng ngay sau danh từ liên quan
-4. Tính từ mô tả → đứng sau danh từ nó bổ nghĩa
-5. Động từ / hành động → đứng cuối
+=== QUY TẮC SẮP XẾP ===
 
-Có thể gộp các từ liên quan thành cụm (ví dụ: "thùng" + "sữa" → "thùng sữa").
+1. CHỦ THỂ (ai làm) → đứng đầu tiên
+   - Đại từ nhân xưng: tôi, bạn, anh, chị, em, cậu, họ, chúng tôi...
+   - Tên người, danh xưng cụ thể
+   Ví dụ: "tôi", "anh Nam", "cô giáo"
+
+2. BỐI CẢNH THỜI GIAN → đứng sau chủ thể
+   - Từ chỉ thời gian: hôm nay, hôm qua, sáng, tối, năm ngoái...
+   Ví dụ: ["tôi", "hôm qua", ...]
+
+3. BỐI CẢNH ĐỊA ĐIỂM → đứng sau thời gian
+   - Từ chỉ nơi chốn: trường, nhà, công viên, siêu thị...
+   Ví dụ: ["tôi", "hôm qua", "trường", ...]
+
+4. ĐỐI TƯỢNG / DANH TỪ → đứng trước hành động
+   - Vật, người được nhắc đến trong câu
+   - Số lượng đặt NGAY SAU danh từ liên quan
+   Ví dụ: ["sữa", "2 hộp"] không phải ["2", "hộp", "sữa"]
+
+5. TÍNH TỪ MÔ TẢ → đứng NGAY SAU danh từ nó bổ nghĩa
+   - Màu sắc, kích thước, trạng thái...
+   Ví dụ: ["áo", "đỏ"] không phải ["đỏ", "áo"]
+
+6. HÀNH ĐỘNG / ĐỘNG TỪ → đứng cuối
+   - Hành động chính của câu
+   Ví dụ: "mua", "ăn", "đi", "học"
+
+7. CÂU HỎI → từ để hỏi đặt CUỐI câu
+   - ai, gì, ở đâu, khi nào, bao nhiêu, như thế nào...
+   Ví dụ: ["bạn", "tên", "gì"] không phải ["gì", "tên", "bạn"]
+
+=== GỘP TỪ LIÊN QUAN ===
+- Danh từ ghép: "xe" + "đạp" → "xe đạp"
+- Động từ ghép: "đi" + "học" → "đi học"
+- Cụm danh từ: "thùng" + "sữa" → "thùng sữa"
+- KHÔNG gộp nếu hai từ thuộc vai trò khác nhau trong câu
+
+=== VÍ DỤ ===
+input:  ["tôi", "mua", "1", "thùng", "sữa"]
+output: ["tôi", "thùng sữa", "1", "mua"]
+
+input:  ["đi", "học", "xe", "đạp"]
+output: ["đi học", "xe đạp"]
+
+input:  ["cậu", "ăn", "bún", "bánh", "mì"]
+output: ["cậu", "bún", "bánh mì", "ăn"]
+
+input:  ["trời", "mưa", "tôi", "đi", "học"]
+output: ["trời", "mưa", "tôi", "đi học"]
+
+input:  ["anh", "em", "đi", "chơi"]
+output: ["anh", "em", "đi chơi"]
+
+input:  ["bạn", "tên", "gì"]
+output: ["bạn", "tên", "gì"]
+
+input:  ["tôi", "hôm qua", "siêu thị", "mua", "áo", "đỏ", "2"]
+output: ["tôi", "hôm qua", "siêu thị", "áo đỏ", "2", "mua"]
+
 Chỉ trả về JSON array, KHÔNG có markdown, KHÔNG giải thích.
-
-Ví dụ input: ["tôi", "mua", "1", "thùng", "sữa"]
-Ví dụ output: ["tôi", "thùng sữa", "1", "mua"]
-
 Input: ${JSON.stringify(contentWords)}`;
 
   for (const modelName of GEMINI_MODELS) {
