@@ -9,6 +9,14 @@ const {
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
+const GEMINI_MODELS = [
+  "gemini-3.1-flash-lite", // 500 RPD - ưu tiên nhất
+  "gemini-2.5-flash", // 20 RPD
+  "gemini-2.5-flash-lite", // 20 RPD
+  "gemini-3.5-flash", // 20 RPD
+  "gemini-3.0-flash", // 20 RPD
+];
+
 const ALL_STOP_WORDS = [...Gioi_tu, ...Lien_tu, ...Tu_tinhthai, ...Tro_tu]
   .map((w) => w.toLowerCase())
   .sort(
@@ -62,8 +70,6 @@ function extractContentWords(sentence) {
 async function reorderWithGemini(contentWords) {
   if (contentWords.length <= 1) return contentWords;
 
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
   const prompt = `Bạn là chuyên gia ngôn ngữ ký hiệu tiếng Việt.
 Nhận mảng từ tiếng Việt đã được lọc sẵn, sắp xếp lại theo cấu trúc ngôn ngữ ký hiệu.
 
@@ -82,18 +88,38 @@ Ví dụ output: ["tôi", "thùng sữa", "1", "mua"]
 
 Input: ${JSON.stringify(contentWords)}`;
 
-  const result = await model.generateContent(prompt);
-  const raw = result.response.text().trim();
+  for (const modelName of GEMINI_MODELS) {
+    try {
+      console.log(`Đang thử model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const raw = result.response.text().trim();
 
-  try {
-    const cleaned = raw.replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(cleaned);
-    if (Array.isArray(parsed)) return parsed;
-    throw new Error("Không phải array");
-  } catch {
-    console.error("Gemini reorder parse error:", raw);
-    return contentWords;
+      const cleaned = raw.replace(/```json|```/g, "").trim();
+      const parsed = JSON.parse(cleaned);
+
+      if (Array.isArray(parsed)) {
+        console.log(`Thành công với model: ${modelName}`);
+        return parsed;
+      }
+    } catch (err) {
+      const isQuotaError =
+        err.message?.includes("429") ||
+        err.message?.includes("quota") ||
+        err.message?.includes("RESOURCE_EXHAUSTED");
+
+      if (isQuotaError) {
+        console.warn(`Model ${modelName} hết quota, thử model tiếp theo...`);
+        continue;
+      }
+
+      console.error(`Model ${modelName} lỗi:`, err.message);
+      break;
+    }
   }
+
+  console.warn("Tất cả model đều hết quota, giữ nguyên thứ tự");
+  return contentWords;
 }
 
 exports.analyzeSign = async (req, res) => {
@@ -118,13 +144,9 @@ exports.analyzeSign = async (req, res) => {
       });
     }
 
-    // Bước 1: Lọc từ bằng wordLists
     const { contentWords, removedWords } = extractContentWords(sentence.trim());
-
-    // Bước 2: Sắp xếp lại bằng Gemini
     const signSequence = await reorderWithGemini(contentWords);
 
-    // Bước 3: Tra DB theo signSequence
     const wordResults = await Promise.all(
       signSequence.map(async (word) => {
         const found = await Word.findOne({
