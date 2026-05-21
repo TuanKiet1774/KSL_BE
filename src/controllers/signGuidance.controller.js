@@ -107,9 +107,10 @@ KHÔNG đảo thứ tự từ. Chỉ gộp từ liên quan và xử lý tên ri�
 Các từ/cụm sau đây đều mang nghĩa chào hỏi, quy về "xin chào":
 - "xin chào", "chào", "hello", "hi", "hey"
 - "hân hạnh được gặp", "rất vui được gặp", "vui được gặp"
+- "Chào bạn", "Chào anh", "Chào chị", "Chào em", "Chào mọi người" → tất cả đều thành "xin chào"
 
 Ví dụ:
-- ["chào", "bạn"] → ["xin chào", "bạn"]
+- ["chào", "bạn"] → ["xin chào"]
 - ["hello", "tôi", "tên", "Nam"] → ["xin chào", "tôi", "tên", "N", "A", "M"]
 
 === XỬ LÝ TÊN RIÊNG CỦA NGƯỜI ===
