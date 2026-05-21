@@ -12,6 +12,7 @@ const feedbackRoutes = require("./routes/feedback.routes");
 const stasticRoutes = require("./routes/stastic.routes");
 const favoriteWordRoutes = require("./routes/favoriteWord.routes");
 const learnedWordRoutes = require("./routes/learnedWord.routes");
+const signGuidanceRoutes = require("./routes/signGuidance.routes");
 const { protect } = require("./middleware/authMiddleware");
 
 app.use(cors());
@@ -29,6 +30,7 @@ app.use("/api/feedbacks", protect, feedbackRoutes);
 app.use("/api/stastic", protect, stasticRoutes);
 app.use("/api/favorite-words", protect, favoriteWordRoutes);
 app.use("/api/learned-words", protect, learnedWordRoutes);
+app.use("/api/sign-guidance", protect, signGuidanceRoutes);
 
 app.get("/", (req, res) => {
     res.send("API is running...");
