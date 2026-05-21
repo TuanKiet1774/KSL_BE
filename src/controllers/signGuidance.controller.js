@@ -38,7 +38,7 @@ const SINGLE_LETTERS = /^[A-ZĂÂÊÔƠƯĐ]$/i;
 function getDisplayWord(word) {
   // Dấu thanh → "Dấu sắc", "Dấu nặng"...
   if (TONE_MARKS.includes(word.toLowerCase())) {
-    return "Dấu " + word.toLowerCase();
+    return "Dấu " + word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
   }
   // Chữ cái đơn → "Chữ A", "Chữ K"...
   if (SINGLE_LETTERS.test(word)) {
