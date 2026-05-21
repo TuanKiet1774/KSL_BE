@@ -31,6 +31,48 @@ function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// Thêm sau hàm escapeRegex
+const TONE_MARKS = ["sắc", "huyền", "hỏi", "ngã", "nặng"];
+const SINGLE_LETTERS = /^[A-ZĂÂÊÔƠƯĐ]$/i;
+
+function getDisplayWord(word) {
+  // Dấu thanh → "Dấu sắc", "Dấu nặng"...
+  if (TONE_MARKS.includes(word.toLowerCase())) {
+    return "Dấu " + word.toLowerCase();
+  }
+  // Chữ cái đơn → "Chữ A", "Chữ K"...
+  if (SINGLE_LETTERS.test(word)) {
+    return "Chữ " + word.toUpperCase();
+  }
+  // Từ thường → giữ nguyên
+  return word;
+}
+
+// Cập nhật phần tra DB trong analyzeSign
+const wordResults = await Promise.all(
+  signSequence.map(async (word) => {
+    const displayWord = getDisplayWord(word);
+
+    // Thử tìm với displayWord trước, nếu không có thì thử word gốc
+    let found = await Word.findOne({
+      name: { $regex: `^${escapeRegex(displayWord)}$`, $options: "i" },
+    }).populate("topicId");
+
+    if (!found && displayWord !== word) {
+      found = await Word.findOne({
+        name: { $regex: `^${escapeRegex(word)}$`, $options: "i" },
+      }).populate("topicId");
+    }
+
+    return {
+      word,
+      displayWord,   // ← thêm field này
+      found: !!found,
+      data: found || null,
+    };
+  })
+);
+
 function extractContentWords(sentence) {
   const normalized = sentence
     .toLowerCase()
