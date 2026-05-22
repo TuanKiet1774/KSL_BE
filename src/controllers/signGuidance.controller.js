@@ -96,21 +96,60 @@ Nhận mảng từ tiếng Việt đã được lọc sẵn, xử lý lại theo
 Ngôn ngữ ký hiệu tiếng Việt GIỮ NGUYÊN thứ tự từ như tiếng Việt thông thường.
 KHÔNG đảo thứ tự từ. Chỉ gộp từ liên quan và xử lý tên riêng/câu chào.
 
+=== CHUẨN HÓA ĐẠI TỪ NHÂN XƯNG ===
+Quy tất cả các đại từ về dạng chuẩn trong ngôn ngữ ký hiệu:
+
+Ngôi thứ nhất → "tôi":
+- tớ, tao, ta, mình, tui, tau, tui, ta, moa → "tôi"
+
+Ngôi thứ hai → "bạn":
+- mày, cậu, mi, mình (khi chỉ người nghe), ông, bà (thân mật) → "bạn"
+
+Cha/Ba → "ba":
+- ba, bố, cha, thầy (miền Nam), tía, bọ → "ba"
+
+Mẹ → "mẹ":
+- mẹ, má, u, bầu, mạ, mế → "mẹ"
+
+Anh trai → "anh":
+- anh (chỉ anh trai), huynh → "anh"
+
+Chị gái → "chị":
+- chị (chỉ chị gái), tỷ → "chị"
+
+Em → "em":
+- em, đệ, muội → "em"
+
+Ông → "ông":
+- ông nội, ông ngoại → "ông"
+
+Bà → "bà":
+- bà nội, bà ngoại → "bà"
+
+Lưu ý: chỉ chuẩn hóa khi từ đó đang đóng vai trò đại từ nhân xưng trong câu,
+KHÔNG chuẩn hóa khi là danh xưng lịch sự (ví dụ: "anh ơi" khi gọi người lạ).
+
+Ví dụ:
+- ["tớ", "mua", "sữa"] → ["tôi", "mua", "sữa"]
+- ["mày", "khỏe"] → ["bạn", "khỏe"]
+- ["ba", "tôi", "đi", "làm"] → ["ba", "tôi", "đi làm"]
+- ["bố", "tôi", "bệnh"] → ["ba", "tôi", "bệnh"]
+- ["má", "nấu", "cơm"] → ["mẹ", "nấu", "cơm"]
+
 === GỘP TỪ LIÊN QUAN (giữ vị trí trong câu) ===
 - Danh từ ghép: "xe" + "đạp" → "xe đạp"
 - Động từ ghép: "đi" + "học" → "đi học"
 - Cụm danh từ: "thùng" + "sữa" → "thùng sữa"
-- Số lượng + danh từ: "1" + "thùng sữa" → giữ nguyên thứ tự trong câu
+- Số lượng + danh từ: giữ nguyên thứ tự trong câu
 - KHÔNG gộp nếu hai từ thuộc vai trò khác nhau trong câu
 
 === XỬ LÝ CÂU CHÀO ===
 Các từ/cụm sau đây đều mang nghĩa chào hỏi, quy về "xin chào":
 - "xin chào", "chào", "hello", "hi", "hey"
 - "hân hạnh được gặp", "rất vui được gặp", "vui được gặp"
-- "Chào bạn", "Chào anh", "Chào chị", "Chào em", "Chào mọi người" → tất cả đều thành "xin chào"
 
 Ví dụ:
-- ["chào", "bạn"] → ["xin chào"]
+- ["chào", "bạn"] → ["xin chào", "bạn"]
 - ["hello", "tôi", "tên", "Nam"] → ["xin chào", "tôi", "tên", "N", "A", "M"]
 
 === XỬ LÝ TÊN RIÊNG CỦA NGƯỜI ===
@@ -136,6 +175,15 @@ Quy tắc họ tên đầy đủ:
 input:  ["tôi", "mua", "1", "thùng", "sữa"]
 output: ["tôi", "mua", "1", "thùng sữa"]
 
+input:  ["tớ", "mua", "1", "thùng", "sữa"]
+output: ["tôi", "mua", "1", "thùng sữa"]
+
+input:  ["má", "nấu", "cơm"]
+output: ["mẹ", "nấu", "cơm"]
+
+input:  ["bố", "tao", "bệnh"]
+output: ["ba", "tôi", "bệnh"]
+
 input:  ["tôi", "tên", "Kiệt"]
 output: ["tôi", "tên", "K", "I", "Ê", "T", "nặng"]
 
@@ -145,14 +193,11 @@ output: ["bạn", "tên", "K", "I", "Ê", "T", "nặng"]
 input:  ["anh", "Thái", "đi", "học"]
 output: ["anh", "T", "H", "A", "I", "sắc", "đi học"]
 
-input:  ["tôi", "gặp", "Nam", "hôm qua", "trường"]
-output: ["tôi", "gặp", "N", "A", "M", "hôm qua", "trường"]
-
 input:  ["đi", "học", "xe", "đạp"]
 output: ["đi học", "xe đạp"]
 
 input:  ["cậu", "ăn", "bún", "bánh", "mì"]
-output: ["cậu", "ăn", "bún", "bánh mì"]
+output: ["bạn", "ăn", "bún", "bánh mì"]
 
 input:  ["bạn", "tên", "gì"]
 output: ["bạn", "tên", "gì"]
