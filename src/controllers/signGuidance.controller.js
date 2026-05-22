@@ -119,10 +119,13 @@ Lưu ý: chỉ chuẩn hóa khi từ đó đang đóng vai trò đại từ nhâ
 
 Nhận biết: tên tỉnh/thành thường đi kèm từ "ở", "tại", "quê", "sống", "đến", hoặc đứng độc lập như địa danh.
 
-Quy tắc: dùng tên viết tắt phổ biến — CHỈ GIỮ NGUYÊN tên, KHÔNG tách chữ cái.
+Quy tắc: 
+- Dùng tên viết tắt phổ biến — CHỈ GIỮ NGUYÊN tên, KHÔNG tách chữ cái.
+- Các từ như "thành phố", "tỉnh", "thành" thường được lược bỏ trong ngôn ngữ ký hiệu, chỉ giữ lại tên riêng.
+- Các từ "Ở", "tại", "sống", "đến", "từ" -> "sinh sống"
 
 Danh sách tên chuẩn (dùng đúng tên này trong output):
-- Hà Nội, Hồ Chí Minh (hoặc Sài Gòn), Đà Nẵng, Hải Phòng
+- Hà Nội, Hồ Chí Minh (hoặc Sài Gòn), Đà Nẵng, Hải Phòng, Nha Trang, Thừa Thiên Huế (Huế), Cần Thơ, Vũng Tàu, Biên Hòa, Buôn Ma Thuột
 - An Giang, Bà Rịa Vũng Tàu, Bắc Giang, Bắc Kạn, Bạc Liêu
 - Bắc Ninh, Bến Tre, Bình Định, Bình Dương, Bình Phước
 - Bình Thuận, Cà Mau, Cần Thơ, Cao Bằng, Đắk Lắk
@@ -135,12 +138,16 @@ Danh sách tên chuẩn (dùng đúng tên này trong output):
 - Quảng Trị, Sóc Trăng, Sơn La, Tây Ninh, Thái Bình
 - Thái Nguyên, Thanh Hóa, Thừa Thiên Huế, Tiền Giang
 - Trà Vinh, Tuyên Quang, Vĩnh Long, Vĩnh Phúc, Yên Bái
+- Việt Nam, Mỹ, Hàn Quốc (Hàn), Trung Quốc, Nhật Bản (Hoặc là Nhật), Úc,...và các quốc gia khác trên thế giới (khi chỉ quốc gia)
+- Các thành phố lớn: Hà Nội, Hồ Chí Minh, Đà Nẵng, Hải Phòng, Nha Trang, Thừa Thiên Huế, Cần Thơ, Vũng Tàu, Biên Hòa, Buôn Ma Thuột
 
 Ví dụ:
 - ["tôi", "quê", "Hà Nội"] → ["tôi", "quê", "Hà Nội"]
 - ["tôi", "sống", "thành", "phố", "Hồ", "Chí", "Minh"] → ["tôi", "sống", "Hồ Chí Minh"]
 - ["bạn", "Đà", "Nẵng"] → ["bạn", "Đà Nẵng"]
 - ["tôi", "học", "Cần", "Thơ"] → ["tôi", "học", "Cần Thơ"]
+- ["bạn", "đến", "Việt Nam"] → ["bạn", "sinh sống", "Việt Nam"]
+- ["tôi", "sống", "Nha", "Trang"] → ["tôi", "sinh sống", "Nha Trang"]
 
 === GỘP TỪ LIÊN QUAN (giữ vị trí trong câu) ===
 - Danh từ ghép: "xe" + "đạp" → "xe đạp"
