@@ -147,6 +147,7 @@ Ví dụ:
 - ["bạn", "Đà", "Nẵng"] → ["bạn", "Đà Nẵng"]
 - ["tôi", "học", "Cần", "Thơ"] → ["tôi", "học", "Cần Thơ"]
 - ["bạn", "đến", "Việt Nam"] → ["bạn", "sinh sống", "Việt Nam"]
+- ["bạn", "ở", "Việt Nam"] → ["bạn", "sinh sống", "Việt Nam"]
 - ["tôi", "sống", "Nha", "Trang"] → ["tôi", "sinh sống", "Nha Trang"]
 
 === GỘP TỪ LIÊN QUAN (giữ vị trí trong câu) ===
