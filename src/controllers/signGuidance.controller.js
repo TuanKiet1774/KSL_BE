@@ -99,12 +99,8 @@ KHÔNG đảo thứ tự từ. Chỉ gộp từ liên quan và xử lý tên ri�
 === CHUẨN HÓA ĐẠI TỪ NHÂN XƯNG ===
 Quy tất cả các đại từ về dạng chuẩn trong ngôn ngữ ký hiệu:
 
-Ngôi thứ nhất → "tôi":
-- tớ, tao, ta, mình, tui, tau, moa → "tôi"
-
-Ngôi thứ hai → "bạn":
-- mày, cậu, mi, mình (khi chỉ người nghe) → "bạn"
-
+Ngôi thứ nhất → "tôi": tớ, tao, ta, mình, tui, tau, moa → "tôi"
+Ngôi thứ hai → "bạn": mày, cậu, mi, mình (khi chỉ người nghe) → "bạn"
 Cha/Ba → "ba": ba, bố, cha, tía, bọ → "ba"
 Mẹ → "mẹ": mẹ, má, u, bầu, mạ, mế → "mẹ"
 Anh trai → "anh": anh (chỉ anh trai), huynh → "anh"
@@ -115,40 +111,44 @@ Bà → "bà": bà nội, bà ngoại → "bà"
 
 Lưu ý: chỉ chuẩn hóa khi từ đó đang đóng vai trò đại từ nhân xưng trong câu.
 
-=== XỬ LÝ TÊN TỈNH/THÀNH PHỐ VIỆT NAM ===
+=== XỬ LÝ ĐỊA DANH (TỈNH/THÀNH PHỐ VÀ QUỐC GIA) ===
 
-Nhận biết: tên tỉnh/thành thường đi kèm từ "ở", "tại", "quê", "sống", "đến", hoặc đứng độc lập như địa danh.
+Quy tắc chung:
+- GIỮ NGUYÊN tên địa danh, KHÔNG tách chữ cái
+- Gộp các từ bị tách lẻ thành tên đầy đủ
+- Lược bỏ: "thành phố", "tỉnh", "thành" khi đứng trước tên địa danh
 
-Quy tắc: 
-- Dùng tên viết tắt phổ biến — CHỈ GIỮ NGUYÊN tên, KHÔNG tách chữ cái.
-- Các từ như "thành phố", "tỉnh", "thành" thường được lược bỏ trong ngôn ngữ ký hiệu, chỉ giữ lại tên riêng.
-- Các từ "Ở", "tại", "sống", "đến", "từ" -> "sinh sống"
+TỈNH/THÀNH PHỐ VIỆT NAM — danh sách tên chuẩn:
+Hà Nội, Hồ Chí Minh, Sài Gòn, Đà Nẵng, Hải Phòng, Cần Thơ,
+Huế, Nha Trang, Vũng Tàu, Biên Hòa, Buôn Ma Thuột, Đà Lạt,
+Quy Nhơn, Vinh, Hạ Long, Thủ Dầu Một,
+An Giang, Bà Rịa Vũng Tàu, Bắc Giang, Bắc Kạn, Bạc Liêu,
+Bắc Ninh, Bến Tre, Bình Định, Bình Dương, Bình Phước, Bình Thuận,
+Cà Mau, Cao Bằng, Đắk Lắk, Đắk Nông, Điện Biên,
+Đồng Nai, Đồng Tháp, Gia Lai, Hà Giang, Hà Nam, Hà Tĩnh,
+Hải Dương, Hậu Giang, Hòa Bình, Hưng Yên, Khánh Hòa,
+Kiên Giang, Kon Tum, Lai Châu, Lâm Đồng, Lạng Sơn, Lào Cai,
+Long An, Nam Định, Nghệ An, Ninh Bình, Ninh Thuận, Phú Thọ,
+Phú Yên, Quảng Bình, Quảng Nam, Quảng Ngãi, Quảng Ninh, Quảng Trị,
+Sóc Trăng, Sơn La, Tây Ninh, Thái Bình, Thái Nguyên, Thanh Hóa,
+Thừa Thiên Huế, Tiền Giang, Trà Vinh, Tuyên Quang,
+Vĩnh Long, Vĩnh Phúc, Yên Bái
 
-Danh sách tên chuẩn (dùng đúng tên này trong output):
-- Hà Nội, Hồ Chí Minh (hoặc Sài Gòn), Đà Nẵng, Hải Phòng, Nha Trang, Thừa Thiên Huế (Huế), Cần Thơ, Vũng Tàu, Biên Hòa, Buôn Ma Thuột
-- An Giang, Bà Rịa Vũng Tàu, Bắc Giang, Bắc Kạn, Bạc Liêu
-- Bắc Ninh, Bến Tre, Bình Định, Bình Dương, Bình Phước
-- Bình Thuận, Cà Mau, Cần Thơ, Cao Bằng, Đắk Lắk
-- Đắk Nông, Điện Biên, Đồng Nai, Đồng Tháp, Gia Lai
-- Hà Giang, Hà Nam, Hà Tĩnh, Hải Dương, Hậu Giang
-- Hòa Bình, Hưng Yên, Khánh Hòa, Kiên Giang, Kon Tum
-- Lai Châu, Lâm Đồng, Lạng Sơn, Lào Cai, Long An
-- Nam Định, Nghệ An, Ninh Bình, Ninh Thuận, Phú Thọ
-- Phú Yên, Quảng Bình, Quảng Nam, Quảng Ngãi, Quảng Ninh
-- Quảng Trị, Sóc Trăng, Sơn La, Tây Ninh, Thái Bình
-- Thái Nguyên, Thanh Hóa, Thừa Thiên Huế, Tiền Giang
-- Trà Vinh, Tuyên Quang, Vĩnh Long, Vĩnh Phúc, Yên Bái
-- Việt Nam, Mỹ, Hàn Quốc (Hàn), Trung Quốc, Nhật Bản (Hoặc là Nhật), Úc,...và các quốc gia khác trên thế giới (khi chỉ quốc gia)
-- Các thành phố lớn: Hà Nội, Hồ Chí Minh, Đà Nẵng, Hải Phòng, Nha Trang, Thừa Thiên Huế, Cần Thơ, Vũng Tàu, Biên Hòa, Buôn Ma Thuột
+QUỐC GIA — dùng tên phổ biến nhất:
+Việt Nam, Mỹ, Anh, Pháp, Đức, Ý, Tây Ban Nha,
+Trung Quốc, Nhật Bản, Hàn Quốc, Triều Tiên,
+Nga, Úc, Canada, Brazil, Ấn Độ, Thái Lan,
+Singapore, Malaysia, Indonesia, Philippines, Campuchia, Lào,
+Ai Cập, Nam Phi, Mexico, Argentina
 
-Ví dụ:
-- ["tôi", "quê", "Hà Nội"] → ["tôi", "quê", "Hà Nội"]
-- ["tôi", "sống", "thành", "phố", "Hồ", "Chí", "Minh"] → ["tôi", "sống", "Hồ Chí Minh"]
-- ["bạn", "Đà", "Nẵng"] → ["bạn", "Đà Nẵng"]
-- ["tôi", "học", "Cần", "Thơ"] → ["tôi", "học", "Cần Thơ"]
-- ["bạn", "đến", "Việt Nam"] → ["bạn", "sinh sống", "Việt Nam"]
-- ["bạn", "ở", "Việt Nam"] → ["bạn", "sinh sống", "Việt Nam"]
-- ["tôi", "sống", "Nha", "Trang"] → ["tôi", "sinh sống", "Nha Trang"]
+Ví dụ gộp tên bị tách lẻ:
+- ["Hồ", "Chí", "Minh"] → ["Hồ Chí Minh"]
+- ["thành", "phố", "Hồ", "Chí", "Minh"] → ["Hồ Chí Minh"]
+- ["Buôn", "Ma", "Thuột"] → ["Buôn Ma Thuột"]
+- ["Bà", "Rịa", "Vũng", "Tàu"] → ["Bà Rịa Vũng Tàu"]
+- ["Hàn", "Quốc"] → ["Hàn Quốc"]
+- ["Nhật", "Bản"] → ["Nhật Bản"]
+- ["Trung", "Quốc"] → ["Trung Quốc"]
 
 === GỘP TỪ LIÊN QUAN (giữ vị trí trong câu) ===
 - Danh từ ghép: "xe" + "đạp" → "xe đạp"
@@ -156,6 +156,10 @@ Ví dụ:
 - Cụm danh từ: "thùng" + "sữa" → "thùng sữa"
 - Số lượng + danh từ: giữ nguyên thứ tự trong câu
 - KHÔNG gộp nếu hai từ thuộc vai trò khác nhau trong câu
+- "ở" + địa danh → "sinh sống" + địa danh
+- "sống" + địa danh → "sinh sống" + địa danh
+- "ở" đứng trước từ không phải địa danh → giữ nguyên "ở"
+- "sống" đứng trước từ không phải địa danh → giữ nguyên "sống"
 
 === XỬ LÝ CÂU CHÀO ===
 Các từ/cụm sau đây đều mang nghĩa chào hỏi, quy về "xin chào":
@@ -169,7 +173,7 @@ Ví dụ:
 === XỬ LÝ TÊN RIÊNG CỦA NGƯỜI ===
 Nhận biết tên riêng: từ viết hoa đầu chữ, là tên người Việt Nam.
 Tên ở vị trí giới thiệu bản thân hoặc hỏi tên người khác thường là tên riêng.
-KHÔNG nhầm tên tỉnh/thành với tên người.
+KHÔNG nhầm tên tỉnh/thành/quốc gia với tên người.
 
 Quy tắc tách chữ cái:
 - Tách từng chữ cái thành phần tử riêng biệt
@@ -200,11 +204,23 @@ output: ["mẹ", "nấu", "cơm"]
 input:  ["bố", "tao", "bệnh"]
 output: ["ba", "tôi", "bệnh"]
 
-input:  ["tôi", "quê", "Hà", "Nội"]
-output: ["tôi", "quê", "Hà Nội"]
+input:  ["tôi", "ở", "Hà", "Nội"]
+output: ["tôi", "sinh sống", "Hà Nội"]
+
+input:  ["tôi", "sống", "Đà", "Nẵng"]
+output: ["tôi", "sinh sống", "Đà Nẵng"]
 
 input:  ["bạn", "sống", "thành", "phố", "Hồ", "Chí", "Minh"]
-output: ["bạn", "sống", "Hồ Chí Minh"]
+output: ["bạn", "sinh sống", "Hồ Chí Minh"]
+
+input:  ["tôi", "đến", "Nhật", "Bản", "học"]
+output: ["tôi", "đến", "Nhật Bản", "học"]
+
+input:  ["tôi", "ở", "nhà"]
+output: ["tôi", "ở", "nhà"]
+
+input:  ["tôi", "sống", "tốt"]
+output: ["tôi", "sống", "tốt"]
 
 input:  ["tôi", "tên", "Kiệt"]
 output: ["tôi", "tên", "K", "I", "Ê", "T", "nặng"]
