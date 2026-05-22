@@ -89,7 +89,7 @@ function extractContentWords(sentence) {
 async function reorderWithGemini(contentWords) {
   if (contentWords.length <= 1) return contentWords;
 
-const prompt = `Bạn là chuyên gia ngôn ngữ ký hiệu tiếng Việt (NNKH).
+  const prompt = `Bạn là chuyên gia ngôn ngữ ký hiệu tiếng Việt (NNKH).
 Nhận mảng từ tiếng Việt đã được lọc sẵn, xử lý lại theo cấu trúc NNKH.
 
 === NGUYÊN TẮC CHÍNH ===
@@ -100,41 +100,47 @@ KHÔNG đảo thứ tự từ. Chỉ gộp từ liên quan và xử lý tên ri�
 Quy tất cả các đại từ về dạng chuẩn trong ngôn ngữ ký hiệu:
 
 Ngôi thứ nhất → "tôi":
-- tớ, tao, ta, mình, tui, tau, tui, ta, moa → "tôi"
+- tớ, tao, ta, mình, tui, tau, moa → "tôi"
 
 Ngôi thứ hai → "bạn":
-- mày, cậu, mi, mình (khi chỉ người nghe), ông, bà (thân mật) → "bạn"
+- mày, cậu, mi, mình (khi chỉ người nghe) → "bạn"
 
-Cha/Ba → "ba":
-- ba, bố, cha, thầy (miền Nam), tía, bọ → "ba"
+Cha/Ba → "ba": ba, bố, cha, tía, bọ → "ba"
+Mẹ → "mẹ": mẹ, má, u, bầu, mạ, mế → "mẹ"
+Anh trai → "anh": anh (chỉ anh trai), huynh → "anh"
+Chị gái → "chị": chị (chỉ chị gái), tỷ → "chị"
+Em → "em": em, đệ, muội → "em"
+Ông → "ông": ông nội, ông ngoại → "ông"
+Bà → "bà": bà nội, bà ngoại → "bà"
 
-Mẹ → "mẹ":
-- mẹ, má, u, bầu, mạ, mế → "mẹ"
+Lưu ý: chỉ chuẩn hóa khi từ đó đang đóng vai trò đại từ nhân xưng trong câu.
 
-Anh trai → "anh":
-- anh (chỉ anh trai), huynh → "anh"
+=== XỬ LÝ TÊN TỈNH/THÀNH PHỐ VIỆT NAM ===
 
-Chị gái → "chị":
-- chị (chỉ chị gái), tỷ → "chị"
+Nhận biết: tên tỉnh/thành thường đi kèm từ "ở", "tại", "quê", "sống", "đến", hoặc đứng độc lập như địa danh.
 
-Em → "em":
-- em, đệ, muội → "em"
+Quy tắc: dùng tên viết tắt phổ biến — CHỈ GIỮ NGUYÊN tên, KHÔNG tách chữ cái.
 
-Ông → "ông":
-- ông nội, ông ngoại → "ông"
-
-Bà → "bà":
-- bà nội, bà ngoại → "bà"
-
-Lưu ý: chỉ chuẩn hóa khi từ đó đang đóng vai trò đại từ nhân xưng trong câu,
-KHÔNG chuẩn hóa khi là danh xưng lịch sự (ví dụ: "anh ơi" khi gọi người lạ).
+Danh sách tên chuẩn (dùng đúng tên này trong output):
+- Hà Nội, Hồ Chí Minh (hoặc Sài Gòn), Đà Nẵng, Hải Phòng
+- An Giang, Bà Rịa Vũng Tàu, Bắc Giang, Bắc Kạn, Bạc Liêu
+- Bắc Ninh, Bến Tre, Bình Định, Bình Dương, Bình Phước
+- Bình Thuận, Cà Mau, Cần Thơ, Cao Bằng, Đắk Lắk
+- Đắk Nông, Điện Biên, Đồng Nai, Đồng Tháp, Gia Lai
+- Hà Giang, Hà Nam, Hà Tĩnh, Hải Dương, Hậu Giang
+- Hòa Bình, Hưng Yên, Khánh Hòa, Kiên Giang, Kon Tum
+- Lai Châu, Lâm Đồng, Lạng Sơn, Lào Cai, Long An
+- Nam Định, Nghệ An, Ninh Bình, Ninh Thuận, Phú Thọ
+- Phú Yên, Quảng Bình, Quảng Nam, Quảng Ngãi, Quảng Ninh
+- Quảng Trị, Sóc Trăng, Sơn La, Tây Ninh, Thái Bình
+- Thái Nguyên, Thanh Hóa, Thừa Thiên Huế, Tiền Giang
+- Trà Vinh, Tuyên Quang, Vĩnh Long, Vĩnh Phúc, Yên Bái
 
 Ví dụ:
-- ["tớ", "mua", "sữa"] → ["tôi", "mua", "sữa"]
-- ["mày", "khỏe"] → ["bạn", "khỏe"]
-- ["ba", "tôi", "đi", "làm"] → ["ba", "tôi", "đi làm"]
-- ["bố", "tôi", "bệnh"] → ["ba", "tôi", "bệnh"]
-- ["má", "nấu", "cơm"] → ["mẹ", "nấu", "cơm"]
+- ["tôi", "quê", "Hà Nội"] → ["tôi", "quê", "Hà Nội"]
+- ["tôi", "sống", "thành", "phố", "Hồ", "Chí", "Minh"] → ["tôi", "sống", "Hồ Chí Minh"]
+- ["bạn", "Đà", "Nẵng"] → ["bạn", "Đà Nẵng"]
+- ["tôi", "học", "Cần", "Thơ"] → ["tôi", "học", "Cần Thơ"]
 
 === GỘP TỪ LIÊN QUAN (giữ vị trí trong câu) ===
 - Danh từ ghép: "xe" + "đạp" → "xe đạp"
@@ -154,6 +160,8 @@ Ví dụ:
 
 === XỬ LÝ TÊN RIÊNG CỦA NGƯỜI ===
 Nhận biết tên riêng: từ viết hoa đầu chữ, là tên người Việt Nam.
+Tên ở vị trí giới thiệu bản thân hoặc hỏi tên người khác thường là tên riêng.
+KHÔNG nhầm tên tỉnh/thành với tên người.
 
 Quy tắc tách chữ cái:
 - Tách từng chữ cái thành phần tử riêng biệt
@@ -168,8 +176,8 @@ Quy tắc tách chữ cái:
 
 Quy tắc họ tên đầy đủ:
 - Chỉ lấy tên chính (từ cuối cùng) để ký hiệu
-  * "Phạm Tuấn Kiệt" → tên chính "Kiệt" → ["K", "I", "Ê", "T", "nặng"]
-  * "Trần Thái" → tên chính "Thái" → ["T", "H", "A", "I", "sắc"]
+  * "Phạm Tuấn Kiệt" → ["K", "I", "Ê", "T", "nặng"]
+  * "Trần Thái" → ["T", "H", "A", "I", "sắc"]
 
 === VÍ DỤ TỔNG HỢP ===
 input:  ["tôi", "mua", "1", "thùng", "sữa"]
@@ -183,6 +191,12 @@ output: ["mẹ", "nấu", "cơm"]
 
 input:  ["bố", "tao", "bệnh"]
 output: ["ba", "tôi", "bệnh"]
+
+input:  ["tôi", "quê", "Hà", "Nội"]
+output: ["tôi", "quê", "Hà Nội"]
+
+input:  ["bạn", "sống", "thành", "phố", "Hồ", "Chí", "Minh"]
+output: ["bạn", "sống", "Hồ Chí Minh"]
 
 input:  ["tôi", "tên", "Kiệt"]
 output: ["tôi", "tên", "K", "I", "Ê", "T", "nặng"]
